@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>King of the Abyss | Igris Manga</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --p: #7d2ae8; --bg: #050505; --card: #111; --fire: #ff4500; --red: #ff4d4d; --gold: #ffcc00; }
+        body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 20px; }
+        
+        /* زر العودة للرئيسية المضاف */
+        .top-nav { max-width: 900px; margin: 0 auto 15px; display: flex; justify-content: flex-end; }
+        .back-home { 
+            text-decoration: none; color: var(--p); border: 1px solid var(--p); 
+            padding: 5px 20px; border-radius: 10px; font-weight: bold; 
+            transition: 0.3s; background: rgba(125, 42, 232, 0.05);
+        }
+        .back-home:hover { background: var(--p); color: #fff; }
+
+        .manga-header { max-width: 900px; margin: 0 auto 20px; display: flex; gap: 20px; background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid #222; align-items: flex-start; }
+        .manga-header img { width: 140px; height: 210px; object-fit: cover; border-radius: 12px; border: 2px solid var(--p); }
+        .manga-details { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .manga-details h1 { margin: 0; color: var(--p); font-size: 1.8rem; font-weight: 900; }
+        
+        .info-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 5px; }
+        .tag { background: #1a1a1a; color: #eee; padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; border: 1px solid #333; }
+        .tag.status { border-color: var(--p); color: var(--p); font-weight: bold; }
+        .tag.type { background: #fff; color: #000; font-weight: bold; }
+        .tag.blood { border-color: var(--red); color: var(--red); }
+
+        .rating-stars { color: #444; font-size: 1.5rem; cursor: pointer; margin-top: 5px; }
+        .rating-stars span { transition: 0.2s; }
+        .rating-stars span.active { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+
+        .action-bar { max-width: 900px; margin: 20px auto; display: flex; flex-wrap: wrap; gap: 15px; background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid #222; align-items: center; }
+        .save-select { background: #000; color: var(--p); border: 1px solid var(--p); padding: 8px; border-radius: 8px; font-family: 'Cairo'; cursor: pointer; }
+
+        .chapters-list { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
+        .chapter-item { background: var(--card); padding: 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: #fff; border-right: 5px solid var(--p); transition: 0.3s; }
+        .chapter-item:hover { background: #1a1a1a; transform: scale(1.01); }
+        
+        .comments-section { max-width: 900px; margin: 40px auto; background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid #222; }
+        textarea { width: 100%; box-sizing: border-box; background: #000; border: 1px solid #333; color: #fff; padding: 15px; border-radius: 10px; font-family: 'Cairo'; resize: none; }
+        .post-btn { background: var(--p); color: #fff; border: none; padding: 8px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        .comment-card { background: #080808; padding: 15px; border-radius: 12px; margin-bottom: 15px; border-right: 4px solid #333; }
+        .comment-header { display: flex; justify-content: space-between; font-size: 0.85rem; color: #888; margin-bottom: 10px; }
+        .ctrl-btns { display: flex; gap: 12px; align-items: center; }
+        .btn-del { color: var(--red); cursor: pointer; font-size: 1.1rem; filter: grayscale(1); }
+        .btn-edit { color: #aaa; cursor: pointer; font-size: 1.1rem; }
+        .admin-badge { background: rgba(255, 77, 77, 0.1); color: var(--red); border: 1px solid var(--red); padding: 2px 8px; border-radius: 5px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
+        .spoiler-text { filter: blur(6px); transition: 0.3s; cursor: pointer; background: #222; }
+        .spoiler-text:hover { filter: blur(0); }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <a href="index.html" class="back-home">« الصفحة الرئيسية</a>
+    </div>
+
+    <div class="manga-header">
+        <img src="manga1.jpg" alt="Cover">
+        <div class="manga-details">
+            <h1>King of the Abyss</h1>
+            <div class="info-row">
+                <span class="tag type">مانجا</span>
+                <span class="tag status">مستمرة</span>
+            </div>
+            <div class="info-row">
+                <span class="tag blood">دموي</span>
+                <span class="tag">أكشن</span>
+                <span class="tag">بطل غير اعتيادي</span>
+                <span class="tag">إيسيكاي</span>
+            </div>
+            <div style="color:#888; font-size:0.9rem; margin-top: 5px;">بواسطة: Igris-Manga</div>
+            
+            <div class="rating-stars" id="stars">
+                <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-bar">
+        <span>حفظ في القائمة:</span>
+        <select class="save-select" id="listSelect" onchange="saveToList()">
+            <option value="0">-- اختر القائمة --</option>
+            <option value="1">نظام</option><option value="2">موريم</option><option value="3">قتال</option><option value="4">رومانسية</option><option value="5">تمت القراءة</option><option value="6">متوقفة</option><option value="7">لا أرغب بالقرأة</option>
+        </select>
+        <div id="saveStatus" style="font-size:0.8rem; color:var(--p); margin-right: 10px;"></div>
+    </div>
+
+    <div class="chapters-list">
+        <a href="Viewer.html?ch=1" class="chapter-item">
+            <span class="ch-title">الفصل 1: البداية من الهاوية</span>
+            <span style="color:#444">منذ يومين</span>
+        </a>
+    </div>
+
+    <div class="comments-section">
+        <h3>التعليقات</h3>
+        <div class="comment-input-area">
+            <textarea id="commentText" placeholder="اكتب رأيك بالمانهوا..."></textarea>
+            <div style="display:flex; justify-content:space-between; margin-top:10px;">
+                <button id="burnBtn" onclick="toggleBurn()" style="background:#222; border:1px solid var(--fire); color:var(--fire); padding:5px 15px; border-radius:8px; cursor:pointer;">حرق 🔥</button>
+                <button class="post-btn" onclick="addComment()">نشر التعليق</button>
+            </div>
+        </div>
+        <div id="commentsList"></div>
+    </div>
+
+    <script>
+        const IS_OWNER = false; 
+        const CURRENT_USER = "Visitor"; 
+        let isBurn = false;
+
+        const stars = document.querySelectorAll('#stars span');
+        stars.forEach(star => {
+            star.onclick = () => {
+                let val = star.getAttribute('data-v');
+                stars.forEach(s => s.classList.remove('active'));
+                for(let i=0; i<val; i++) stars[i].classList.add('active');
+                localStorage.setItem('king_rating', val);
+            };
+        });
+
+        function saveToList() {
+            let val = document.getElementById('listSelect').value;
+            localStorage.setItem('king_list', val);
+            document.getElementById('saveStatus').innerText = "تم التحديث!";
+        }
+
+        function toggleBurn() {
+            isBurn = !isBurn;
+            document.getElementById('burnBtn').style.background = isBurn ? 'var(--fire)' : '#222';
+            document.getElementById('burnBtn').style.color = isBurn ? '#fff' : 'var(--fire)';
+        }
+
+        function addComment() {
+            const text = document.getElementById('commentText').value;
+            if(!text) return;
+            const comment = { id: Date.now(), user: CURRENT_USER, body: text, spoiler: isBurn };
+            displayComment(comment);
+            document.getElementById('commentText').value = "";
+            if(isBurn) toggleBurn();
+        }
+
+        function displayComment(c) {
+            const list = document.getElementById('commentsList');
+            const card = document.createElement('div');
+            card.className = "comment-card";
+            card.id = `com-${c.id}`;
+
+            let ownerBtn = IS_OWNER ? `<span class="admin-badge" onclick="alert('تم الحظر')">حظر</span>` : '';
+            let actionBtns = (c.user === CURRENT_USER) ? `
+                <span class="btn-edit" onclick="editComment('${c.id}')">✎</span>
+                <span class="btn-del" onclick="document.getElementById('com-${c.id}').remove()">🗑️</span>
+            ` : '';
+
+            card.innerHTML = `
+                <div class="comment-header">
+                    <span>${c.user}</span>
+                    <div class="ctrl-btns">${ownerBtn}${actionBtns}<span>الآن</span></div>
+                </div>
+                <div id="text-${c.id}" class="${c.spoiler ? 'spoiler-text' : ''}">
+                    ${c.spoiler ? '⚠️ حرق: ' + c.body : c.body}
+                </div>
+            `;
+            list.prepend(card);
+        }
+
+        function editComment(id) {
+            let oldText = document.getElementById(`text-${id}`).innerText.replace('⚠️ حرق: ', '');
+            let newText = prompt("تعديل التعليق:", oldText);
+            if(newText) document.getElementById(`text-${id}`).innerText = newText;
+        }
+    </script>
+</body>
+</html>
