@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Igris Manga | الرئيسية</title>
+    <script>
+        if(localStorage.getItem('theme') === 'light') {
+            document.documentElement.classList.add('light-mode');
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --p: #7d2ae8; --bg: #050505; --card: #111; --glow: 0 0 20px rgba(125, 42, 232, 0.3); 
+            --side: #0a0a0a; --text: #fff; --border: #222; --sub-bg: #151515;
+        }
+
+        html.light-mode body {
+            --bg: #f5f5f5; --card: #ffffff; --side: #ffffff; --text: #111; --border: #ddd; --sub-bg: #f0f0f0;
+        }
+
+        body { 
+            background: var(--bg); color: var(--text); font-family: 'Cairo', sans-serif; 
+            margin: 0; padding: 0; overflow-x: hidden; transition: background 0.2s; 
+        }
+
+        header { 
+            background: var(--side); padding: 12px 5%; display: flex; 
+            justify-content: space-between; align-items: center; border-bottom: 2px solid var(--p);
+            position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px);
+        }
+        
+        .logo { font-size: 1.5rem; font-weight: 900; color: var(--p); text-shadow: var(--glow); text-decoration: none; cursor: pointer; }
+        
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        
+        .admin-login-btn { color: var(--text); font-size: 1.2rem; text-decoration: none; transition: 0.3s; opacity: 0.8; display: none; }
+        .admin-login-btn:hover { color: var(--p); opacity: 1; }
+
+        .sidebar { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: var(--side); z-index: 2000; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+        .sidebar.active { right: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1500; display: none; backdrop-filter: blur(4px); }
+        .overlay.active { display: block; }
+
+        /* تعديل: إخفاء قسم الملف الشخصي افتراضياً */
+        .user-profile { 
+            padding: 40px 20px; text-align: center; 
+            background: linear-gradient(180deg, var(--border) 0%, var(--side) 100%); 
+            border-bottom: 1px solid var(--border); cursor: pointer; 
+            text-decoration: none; display: none; color: inherit;
+        }
+        
+        .user-avatar { width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--p); margin-bottom: 12px; object-fit: cover; background: #222; display: inline-block;}
+        .side-links { padding: 15px 0; overflow-y: auto; flex-grow: 1; }
+        
+        .side-item { display: flex; align-items: center; padding: 12px 25px; color: var(--text); text-decoration: none; transition: 0.2s; font-size: 0.95rem; border-right: 4px solid transparent; opacity: 0.8; cursor: pointer; width: 100%; box-sizing: border-box; justify-content: space-between; }
+        .side-item i:first-child { margin-left: 15px; width: 20px; text-align: center; }
+        .side-item:hover, .side-item.active { background: rgba(125, 42, 232, 0.1); color: var(--p); border-right-color: var(--p); opacity: 1; }
+
+        .submenu { max-height: 0; overflow: hidden; background: var(--sub-bg); transition: max-height 0.3s ease-out; }
+        .dropdown-active + .submenu { max-height: 400px; }
+        .sub-item { display: flex; align-items: center; padding: 10px 45px; color: var(--text); text-decoration: none; font-size: 0.85rem; transition: 0.3s; opacity: 0.7; }
+        .sub-item i { margin-left: 12px; width: 18px; text-align: center; }
+
+        .manga-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; min-height: 200px; }
+        .manga-card { background: var(--card); border-radius: 12px; overflow: hidden; transition: 0.3s; border: 1px solid var(--border); display: flex; height: 200px; }
+        .manga-poster { width: 130px; min-width: 130px; height: 100%; }
+        .manga-poster img { width: 100%; height: 100%; object-fit: cover; }
+        .manga-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+        .manga-title { font-size: 1rem; font-weight: 900; margin: 0; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chapter-item { background: var(--sub-bg); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; text-decoration: none; color: var(--text); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .chapter-item:hover { background: var(--p); color: #fff; }
+
+        /* تنسيق لزر تسجيل الدخول الكلاسيكي عندما لا يكون المستخدم مسجلاً */
+        .login-prompt {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .login-prompt img { width: 50px; margin-bottom: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-right">
+            <button class="menu-toggle" onclick="toggleMenu()" style="background:none; border:none; color:var(--text); font-size:1.3rem; cursor:pointer;"><i class="fas fa-bars"></i></button>
+            <a href="index.html" class="logo">IGRIS MANGA</a>
+        </div>
+        <div class="header-left">
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="بحث..." onkeyup="searchManga()" style="background:var(--card); border:1px solid var(--border); color:var(--text); padding:8px 15px; border-radius:20px; outline:none; width:100px;">
+            </div>
+            <a href="admin.html" id="adminHeaderBtn" class="admin-login-btn" title="لوحة التحكم"><i class="fas fa-user-shield"></i></a>
+        </div>
+    </header>
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+    
+    <div class="sidebar" id="sidebar">
+        <div id="loggedOutUI" class="login-prompt">
+            <a href="admin.html"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_Color_Icon.svg" alt="Google Login"></a>
+            <div style="font-size: 0.9rem; font-weight: bold;">يرجى تسجيل الدخول</div>
+        </div>
+
+        <a href="profile-settings.html" id="userProfileLink" class="user-profile">
+            <img src="" alt="User" id="userAvatar" class="user-avatar">
+            <span id="userName" style="font-weight: 900; font-size: 1.1rem; color: var(--text); display: block;"></span>
+            <span id="userStatus" style="font-size: 0.75rem; color: var(--p); font-weight: bold; display: none;"><i class="fas fa-crown"></i> عضو مميز</span>
+        </a>
+
+        <nav class="side-links">
+            <a href="index.html" class="side-item active"><div><i class="fas fa-home"></i> الرئيسية</div></a>
+            
+            <div id="userListsContainer" style="display: none;">
+                <div class="side-item" onclick="this.classList.toggle('dropdown-active')">
+                    <div><i class="fas fa-list-ul"></i> قوائم المستخدم</div>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="submenu">
+                    <a href="favorites.html" class="sub-item"><i class="fas fa-heart"></i> قائمة المفضلة</a>
+                    <a href="reading-now.html" class="sub-item"><i class="fas fa-book-open"></i> أقرأها الآن</a>
+                    <a href="read-later.html" class="sub-item"><i class="fas fa-clock"></i> القراءة لاحقاً</a>
+                    <a href="completed.html" class="sub-item"><i class="fas fa-check-circle"></i> الأعمال المقروءة</a>
+                </div>
+                <a href="history.html" class="side-item"><div><i class="fas fa-history"></i> سجل القراءة</div></a>
+            </div>
+            
+            <a href="admin.html" id="adminSidebarBtn" class="side-item" style="color: var(--p); font-weight: bold; display: none;"><div><i class="fas fa-user-lock"></i> لوحة الإدارة</div></a>
+            
+            <div class="mode-switch" onclick="toggleDarkMode()" style="padding: 12px 25px; display: flex; justify-content: space-between; cursor: pointer;">
+                <span><i class="fas fa-moon" style="margin-left:15px; width:20px; text-align:center;"></i> الوضع الليلي</span>
+                <div style="width: 35px; height: 18px; background: var(--p); border-radius: 10px; position: relative;"></div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 20px;">
+            <a href="about.html" class="side-item"><div><i class="fas fa-info-circle"></i> عن إيجريس</div></a>
+            <a href="contact.html" class="side-item"><div><i class="fas fa-envelope"></i> تواصل معنا</div></a>
+        </nav>
+    </div>
+
+    <div class="main-container" style="padding:20px 5%;">
+        <div style="border-right: 4px solid var(--p); padding-right: 12px; margin-bottom: 25px;">
+            <h3 style="margin:0;">آخر التحديثات ⚡</h3>
+        </div>
+        <div class="manga-grid" id="mangaGrid">
+             <p id="loadingStatus" style="text-align:center; grid-column: 1/-1; opacity:0.5;">جاري تحديث المكتبة...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDaosiZQoPCo4wdlSDy6UYs0b2PWbkkWXs",
+          authDomain: "igrismanga-db.firebaseapp.com",
+          databaseURL: "https://igrismanga-db-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "igrismanga-db",
+          storageBucket: "igrismanga-db.firebasestorage.app",
+          appId: "1:40861137290:web:03cd9be7175620d4e23073"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const mangaGrid = document.getElementById('mangaGrid');
+
+        // مراجع العناصر
+        const userNameElem = document.getElementById('userName');
+        const userAvatarElem = document.getElementById('userAvatar');
+        const userStatusElem = document.getElementById('userStatus');
+        const adminHeader = document.getElementById('adminHeaderBtn');
+        const adminSidebar = document.getElementById('adminSidebarBtn');
+        
+        const userProfileLink = document.getElementById('userProfileLink');
+        const userListsContainer = document.getElementById('userListsContainer');
+        const loggedOutUI = document.getElementById('loggedOutUI');
+
+        function updateProfileUI(user) {
+            if (user) {
+                // حالة مسجل الدخول
+                loggedOutUI.style.display = 'none';
+                userProfileLink.style.display = 'block';
+                userListsContainer.style.display = 'block';
+
+                userNameElem.textContent = user.displayName || user.email.split('@')[0];
+                userAvatarElem.src = user.photoURL || "https://via.placeholder.com/85";
+                
+                // صلاحيات المالك
+                if (user.email === "almsmmalmhtrf22@gmail.com") {
+                    if(adminHeader) adminHeader.style.display = 'block';
+                    if(adminSidebar) adminSidebar.style.display = 'flex';
+                    if(userStatusElem) userStatusElem.style.display = 'block';
+                }
+            } else {
+                // حالة غير مسجل الدخول
+                loggedOutUI.style.display = 'block';
+                userProfileLink.style.display = 'none';
+                userListsContainer.style.display = 'none';
+                if(adminHeader) adminHeader.style.display = 'none';
+                if(adminSidebar) adminSidebar.style.display = 'none';
+            }
+        }
+
+        onAuthStateChanged(auth, updateProfileUI);
+
+        onValue(ref(db, 'manga'), (snapshot) => {
+            const data = snapshot.val();
+            mangaGrid.innerHTML = ''; 
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    const manga = data[key];
+                    let chaptersHTML = '';
+                    const chapters = manga.chapters ? Object.keys(manga.chapters).reverse().slice(0, 2) : [];
+                    chapters.forEach(ch => {
+                        chaptersHTML += `<a href="Viewer.html?id=${key}&ch=${ch}" class="chapter-item">الفصل ${ch.replace(/\D/g,'')} <i class="fas fa-play"></i></a>`;
+                    });
+                    mangaGrid.innerHTML += `<div class="manga-card" data-title="${manga.title}"><a href="reader.html?id=${key}" class="manga-poster"><img src="${manga.cover}" alt="cover"></a><div class="manga-info"><h3 class="manga-title">${manga.title}</h3>${chaptersHTML}</div></div>`;
+                });
+            } else { mangaGrid.innerHTML = '<p style="text-align:center; grid-column:1/-1;">لا توجد أعمال حالياً.</p>'; }
+        });
+    </script>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+        function toggleDarkMode() {
+            const isLight = document.documentElement.classList.toggle('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        }
+        function searchManga() {
+            let term = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.querySelectorAll('.manga-card');
+            cards.forEach(card => card.style.display = card.dataset.title.toLowerCase().includes(term) ? "flex" : "none");
+        }
+    </script>
+</body>
+</html>
