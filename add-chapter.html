@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | إضافة فصل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --p: #7d2ae8; --bg: #050505; --card: #111; --text: #fff; --border: #222; }
+        body { background: var(--bg); color: var(--text); font-family: 'Cairo', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        /* واجهة التحميل والحماية */
+        #authGuard { text-align: center; font-size: 1.2rem; color: var(--p); }
+        
+        .upload-container { display: none; background: var(--card); padding: 30px; border-radius: 15px; border: 1px solid var(--p); width: 100%; max-width: 500px; box-shadow: 0 0 25px rgba(125, 42, 232, 0.2); }
+        h2 { color: var(--p); text-align: center; margin-bottom: 25px; font-weight: 900; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: #aaa; }
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 20px; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 8px; outline: none; font-family: 'Cairo'; box-sizing: border-box; }
+        input:focus { border-color: var(--p); }
+        button { width: 100%; padding: 15px; background: var(--p); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1rem; }
+        button:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(125, 42, 232, 0.4); }
+        .back-btn { text-align: center; margin-top: 15px; }
+        .back-btn a { color: #666; text-decoration: none; font-size: 0.8rem; transition: 0.3s; }
+        .back-btn a:hover { color: var(--p); }
+    </style>
+</head>
+<body>
+
+    <div id="authGuard">
+        <i class="fas fa-shield-alt fa-spin"></i> جاري التحقق من صلاحيات المالك...
+    </div>
+
+    <div class="upload-container" id="adminPanel">
+        <h2><i class="fas fa-file-upload"></i> إضافة فصل جديد</h2>
+        
+        <label>اختر العمل المراد تحديثه:</label>
+        <select id="mangaSelect">
+            <option value="">-- جاري تحميل القصص --</option>
+        </select>
+
+        <label>رقم الفصل (مثال: 10):</label>
+        <input type="number" id="chapterNumber" placeholder="رقم الفصل فقط" step="any">
+
+        <label>روابط صفحات الفصل (رابط في كل سطر):</label>
+        <textarea id="pagesUrls" rows="10" placeholder="ضع روابط الصور هنا..."></textarea>
+
+        <button onclick="publishChapter()">نشر التحديث الآن 🚀</button>
+
+        <div class="back-btn">
+            <a href="index.html"><i class="fas fa-arrow-right"></i> العودة للرئيسية</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDaosiZQoPCo4wdlSDy6UYs0b2PWbkkWXs",
+          authDomain: "igrismanga-db.firebaseapp.com",
+          databaseURL: "https://igrismanga-db-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "igrismanga-db",
+          storageBucket: "igrismanga-db.appspot.com",
+          appId: "1:40861137290:web:03cd9be7175620d4e23073"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const adminEmail = "almsmmalmhtrf22@gmail.com";
+
+        // --- نظام حماية المالك ---
+        onAuthStateChanged(auth, (user) => {
+            const guard = document.getElementById('authGuard');
+            const panel = document.getElementById('adminPanel');
+
+            if (user && user.email === adminEmail) {
+                // المستخدم هو المالك
+                guard.style.display = 'none';
+                panel.style.display = 'block';
+                loadMangaList();
+            } else {
+                // مستخدم متطفل أو غير مسجل
+                guard.innerHTML = "<i class='fas fa-times-circle'></i> عذراً، هذه الصفحة للمالك فقط!";
+                setTimeout(() => {
+                    window.location.href = 'index.html'; // طرده للرئيسية
+                }, 2000);
+            }
+        });
+
+        // جلب قائمة المانجا
+        function loadMangaList() {
+            onValue(ref(db, 'manga'), (snapshot) => {
+                const data = snapshot.val();
+                const select = document.getElementById('mangaSelect');
+                select.innerHTML = '<option value="">-- اختر القصة --</option>';
+                if (data) {
+                    Object.keys(data).forEach(id => {
+                        select.innerHTML += `<option value="${id}">${data[id].title}</option>`;
+                    });
+                }
+            });
+        }
+
+        window.publishChapter = async function() {
+            const id = document.getElementById('mangaSelect').value;
+            const chNum = document.getElementById('chapterNumber').value;
+            const urls = document.getElementById('pagesUrls').value.trim();
+
+            if(!id || !chNum || !urls) return alert("الرجاء إدخال كافة البيانات!");
+
+            const pagesArray = urls.split('\n').map(url => url.trim()).filter(url => url !== "");
+
+            try {
+                // التحديث مع التوقيت التلقائي لجلب القصة للأعلى في الصفحة الرئيسية
+                await set(ref(db, `manga/${id}/chapters/${chNum}`), {
+                    pages: pagesArray,
+                    timestamp: Date.now() 
+                });
+                
+                alert("تم رفع الفصل! القصة ستظهر الآن كأول عمل في الصفحة الرئيسية.");
+                location.reload();
+            } catch (e) {
+                alert("فشل الرفع: " + e.message);
+            }
+        };
+    </script>
+</body>
+</html>
