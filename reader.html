@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Igris Manga | Ultra Dark Mode</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* تعريف الألوان: أسود مطلق وبنفسجي متوهج */
+        :root {
+            --bg: #000000;         /* أسود خالص */
+            --card-bg: #0a0a0a;    /* أسود فاتح قليلاً للبطاقات */
+            --text: #ffffff;       /* نصوص بيضاء صريحة */
+            --text-muted: #888888; /* نصوص رمادية باهتة */
+            --p: #7d2ae8;          /* البنفسجي الأساسي */
+            --glow: 0 0 20px rgba(125, 42, 232, 0.4);
+            --border: #1a1a1a;     /* حدود داكنة جداً */
+            --nav-btn-bg: #111111;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            outline: none; 
+        }
+        
+        body { 
+            background-color: var(--bg); 
+            color: var(--text); 
+            font-family: 'Cairo', sans-serif; 
+            margin: 0; 
+            width: 100%; 
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* الهيدر المظلم */
+        .hero { 
+            position: relative; 
+            width: 100%; 
+            height: 45vh; 
+            display: flex; 
+            align-items: flex-end; 
+            overflow: hidden; 
+            background: var(--bg); 
+        }
+        .hero-bg { 
+            position: absolute; inset: 0; 
+            background-size: cover; 
+            background-position: center; 
+            filter: blur(30px) brightness(0.2); /* تعتيم قوي للخلفية */
+            z-index: -1; 
+            transform: scale(1.1); 
+        }
+        .hero-grad { 
+            position: absolute; inset: 0; 
+            background: linear-gradient(to top, var(--bg) 15%, transparent 100%); 
+            z-index: -1; 
+        }
+
+        .top-nav { 
+            position: absolute; top: 0; width: 100%; 
+            padding: 15px; display: flex; 
+            justify-content: space-between; align-items: center; 
+            z-index: 10; 
+        }
+        .site-logo { 
+            color: var(--p); font-size: 1.1rem; 
+            font-weight: 900; text-shadow: var(--glow); 
+            text-decoration: none; 
+        }
+        .back-btn { 
+            width: 40px; height: 40px; 
+            display: flex; align-items: center; justify-content: center; 
+            background: var(--nav-btn-bg); border-radius: 50%; 
+            color: #fff !important; text-decoration: none; 
+            border: 1px solid var(--border);
+        }
+
+        .header-content { 
+            display: flex; flex-direction: row-reverse; 
+            gap: 15px; width: 100%; padding: 0 20px 20px; 
+            align-items: flex-end; z-index: 5; 
+        }
+        .poster { width: 130px; flex-shrink: 0; }
+        .poster img { 
+            width: 100%; border-radius: 12px; 
+            border: 2px solid var(--p); 
+            box-shadow: var(--glow); 
+            aspect-ratio: 2/3; object-fit: cover; 
+        }
+
+        .info { flex: 1; text-align: right; }
+        .info h1 { 
+            font-size: 1.4rem; font-weight: 900; 
+            margin: 0 0 10px; color: #fff; 
+        }
+
+        .interaction-bar { 
+            display: flex; align-items: center; 
+            gap: 8px; justify-content: flex-end; 
+            margin-bottom: 10px; 
+        }
+        .stat-capsule { 
+            background: var(--card-bg); padding: 5px 12px; 
+            border-radius: 50px; border: 1px solid var(--border); 
+            display: flex; align-items: center; gap: 6px; 
+            font-size: 0.85rem; font-weight: bold; 
+        }
+        
+        .star-rating i { color: #333; font-size: 0.75rem; cursor: pointer; }
+        .star-rating i.active { color: #ffcc00 !important; text-shadow: 0 0 8px rgba(255, 204, 0, 0.5); }
+        .heart-btn { color: #444; transition: 0.3s; cursor: pointer; }
+        .heart-btn.active { color: #ff4757 !important; }
+
+        .tags-list { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; justify-content: flex-end; }
+        .tag { 
+            background: rgba(125, 42, 232, 0.15); 
+            color: var(--p); padding: 3px 10px; 
+            border-radius: 6px; border: 1px solid var(--p); 
+            font-size: 0.75rem; font-weight: 800; 
+        }
+
+        .desc-box { 
+            padding: 18px; font-size: 0.95rem; 
+            color: var(--text-muted); text-align: right; 
+            margin: 15px 20px; border-right: 4px solid var(--p); 
+            background: var(--card-bg); border-radius: 4px; 
+        }
+
+        .btn-full { 
+            width: calc(100% - 40px); margin: 10px 20px 25px; 
+            padding: 16px; border-radius: 12px; border: none; 
+            font-family: 'Cairo'; font-weight: 900; font-size: 1.1rem; 
+            cursor: pointer; background: var(--p); color: #fff; 
+            text-decoration: none; display: flex; align-items: center; 
+            justify-content: center; gap: 10px; 
+            box-shadow: var(--glow);
+        }
+
+        .section-label { 
+            display: flex; justify-content: space-between; 
+            align-items: center; padding: 15px 20px; 
+            border-bottom: 1px solid var(--border); 
+            background: var(--card-bg); 
+        }
+        .section-label h2 { font-size: 1.1rem; margin: 0; font-weight: 900; color: var(--p); }
+
+        .sort-trigger { 
+            width: 38px; height: 38px; border-radius: 10px; 
+            background: #111; border: 1px solid var(--border); 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; color: var(--p); 
+        }
+
+        .chapter-list { width: 100%; padding-bottom: 30px; }
+        .chapter-link { 
+            display: flex; justify-content: space-between; 
+            align-items: center; padding: 15px 20px; 
+            border-bottom: 1px solid var(--border); 
+            text-decoration: none; color: inherit; 
+            background: var(--bg);
+        }
+        .chapter-link:active { background: #080808; }
+        
+        .ch-info { display: flex; align-items: center; gap: 12px; flex-direction: row-reverse; }
+        .ch-img-small { 
+            width: 45px; height: 65px; border-radius: 6px; 
+            object-fit: cover; border: 1px solid var(--border); 
+        }
+        .ch-meta { text-align: right; }
+        .ch-n { font-weight: 900; font-size: 1.05rem; color: #fff; display: block; }
+        .ch-d { font-size: 0.75rem; color: var(--text-muted); }
+
+        /* شريط التمرير المظلم */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--p); border-radius: 10px; }
+    </style>
+</head>
+<body onload="loadMock()">
+
+    <div class="hero">
+        <div id="mBg" class="hero-bg"></div>
+        <div class="hero-grad"></div>
+        <div class="top-nav">
+            <a href="i.html" class="site-logo">IGRIS MANGA</a>
+            <a href="i.html" class="back-btn"><i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="header-content">
+            <div class="poster"><img src="" id="mCover"></div>
+            <div class="info">
+                <h1 id="mTitle">...</h1>
+                <div class="interaction-bar">
+                    <div class="stat-capsule" onclick="toggleHeart()">
+                        <span id="mFavs">0</span>
+                        <i class="fas fa-heart heart-btn" id="heartIcon"></i>
+                    </div>
+                    <div class="stat-capsule">
+                        <span id="mRate">0.0</span>
+                        <div class="star-rating" id="starBox">
+                            <i class="fas fa-star" onclick="setRate(5)"></i>
+                            <i class="fas fa-star" onclick="setRate(4)"></i>
+                            <i class="fas fa-star" onclick="setRate(3)"></i>
+                            <i class="fas fa-star" onclick="setRate(2)"></i>
+                            <i class="fas fa-star" onclick="setRate(1)"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="meta-text">النوع: <b id="mType">--</b></div>
+                <div class="meta-text">الحالة: <b id="mStatus">--</b></div>
+                <div class="tags-list" id="mTags"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="desc-box" id="mDesc">...</div>
+
+    <a href="read.html" class="btn-full"><i class="fas fa-play-circle"></i> ابدأ القراءة الآن</a>
+
+    <div class="section-label">
+        <div class="sort-trigger" id="sortBtn" onclick="toggleSort()"><i class="fas fa-sort-amount-down"></i></div>
+        <h2>قائمة الفصول</h2>
+    </div>
+
+    <div id="mChapters" class="chapter-list"></div>
+
+    <script>
+        const mockData = {
+            title: "Solo Leveling",
+            cover: "https://m.media-amazon.com/images/M/MV5BMDY4NDUyYjctYmI1My00MmVkLWI3ZjAtYTBhMTNlY2I3Y2E1XkEyXkFqcGc@._V1_.jpg",
+            description: "في عالم يمتلك فيه الصيادون قدرات سحرية، يجب على الصياد الأضعف سونغ جين وو القتال للبقاء على قيد الحياة، حتى يجد برنامجاً غامضاً يمنحه القدرة على رفع مستواه بلا حدود.",
+            type: "مانهوا كورية",
+            status: "مكتملة",
+            rating: "4.9",
+            favs: "125K",
+            genres: "أكشن, خيال, مغامرة",
+            chapters: ["179", "178", "177", "176"]
+        };
+
+        function loadMock() {
+            document.getElementById('mTitle').innerText = mockData.title;
+            document.getElementById('mCover').src = mockData.cover;
+            document.getElementById('mBg').style.backgroundImage = `url('${mockData.cover}')`;
+            document.getElementById('mDesc').innerText = mockData.description;
+            document.getElementById('mType').innerText = mockData.type;
+            document.getElementById('mStatus').innerText = mockData.status;
+            document.getElementById('mRate').innerText = mockData.rating;
+            document.getElementById('mFavs').innerText = mockData.favs;
+            
+            const t = document.getElementById('mTags');
+            t.innerHTML = '';
+            mockData.genres.split(',').forEach(g => t.innerHTML += `<span class="tag">${g.trim()}</span>`);
+            renderChapters(mockData.chapters);
+            setRate(parseFloat(mockData.rating));
+        }
+
+        function renderChapters(chs) {
+            const l = document.getElementById('mChapters');
+            l.innerHTML = '';
+            chs.forEach(n => {
+                l.innerHTML += `
+                    <a href="chapter-${n}.html" class="chapter-link">
+                        <div class="ch-info">
+                            <img src="${mockData.cover}" class="ch-img-small">
+                            <div class="ch-meta"><span class="ch-n">الفصل ${n}</span><span class="ch-d">متاح للقراءة</span></div>
+                        </div>
+                        <i class="fas fa-chevron-left" style="color:var(--p)"></i>
+                    </a>`;
+            });
+        }
+
+        let isDesc = true;
+        function toggleSort() {
+            isDesc = !isDesc;
+            document.querySelector('#sortBtn i').className = isDesc ? 'fas fa-sort-amount-down' : 'fas fa-sort-amount-up';
+            renderChapters(isDesc ? [...mockData.chapters] : [...mockData.chapters].reverse());
+        }
+
+        function setRate(v) { 
+            document.getElementById('mRate').innerText = v.toFixed(1);
+            document.querySelectorAll('#starBox i').forEach((s, i) => s.classList.toggle('active', (5-i) <= v));
+        }
+        function toggleHeart() { document.getElementById('heartIcon').classList.toggle('active'); }
+    </script>
+</body>
+</html>
