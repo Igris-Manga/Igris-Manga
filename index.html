@@ -20,20 +20,209 @@
         .logo { font-size: 1.5rem; font-weight: 900; color: var(--p); text-shadow: var(--glow); text-decoration: none; }
         
         /* أزرار الإدارة العائمة */
-        #adminFabContainer { position: fixed; bottom: 20px; left: 20px; z-index: 3000; display: none; flex-direction: column-reverse; gap: 12px; align-items: center; }
-        .fab-main { width: 55px; height: 55px; background: var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.4rem; cursor: pointer; box-shadow: var(--glow); border: none; transition: 0.3s; }
+        #adminFabContainer { position: fixed; bottom: 25px; left: 25px; z-index: 3000; display: none; flex-direction: column-reverse; gap: 12px; align-items: center; }
+        .fab-main { width: 60px; height: 60px; background: var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; cursor: pointer; box-shadow: var(--glow); border: none; transition: 0.3s; }
         .fab-options { display: none; flex-direction: column; gap: 10px; margin-bottom: 5px; }
         .fab-options.active { display: flex; }
-        .fab-btn { width: 45px; height: 45px; background: var(--card); border: 2px solid var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--p); cursor: pointer; transition: 0.3s; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        .fab-btn:hover { background: var(--p); color: white; }
+        .fab-btn { width: 50px; height: 50px; background: var(--card); border: 2px solid var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--p); cursor: pointer; transition: 0.3s; font-size: 1.2rem; }
 
-        /* نافذة الإضافة المحدثة */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 4000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 10px; }
-        .modal-content { background: var(--card); padding: 25px; border-radius: 15px; width: 100%; max-width: 500px; border: 1px solid var(--p); box-shadow: var(--glow); max-height: 90vh; overflow-y: auto; }
-        .modal-content h3 { margin: 0 0 20px 0; font-weight: 900; color: var(--p); text-align: center; }
-        .modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 12px; margin-bottom: 12px; background: #000; border: 1px solid var(--border); color: white; border-radius: 8px; box-sizing: border-box; outline: none; font-family: 'Cairo'; }
+        /* نافذة الإضافة المتطورة */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 4000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 15px; width: 95%; max-width: 550px; border: 1px solid var(--p); box-shadow: var(--glow); max-height: 90vh; overflow-y: auto; }
+        .modal-content input, .modal-content select, .modal-content textarea { width: 100%; padding: 12px; margin-bottom: 12px; background: #000; border: 1px solid var(--border); color: white; border-radius: 8px; outline: none; font-family: 'Cairo'; }
         
-        /* تصميم نظام التصنيفات الجديد */
+        /* نظام مربعات التصنيفات */
+        .genre-grid { display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0; background: #000; padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
+        .genre-checkbox { display: none; }
+        .genre-tag { padding: 6px 14px; border-radius: 6px; background: var(--red); color: white; font-size: 0.85rem; cursor: pointer; transition: 0.3s; font-weight: bold; text-align: center; min-width: 60px; }
+        .genre-checkbox:checked + .genre-tag { background: var(--green); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); }
+
+        .save-btn { width: 100%; padding: 14px; background: var(--p); color: white; border: none; border-radius: 8px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 1rem; }
+
+        /* شبكة المانجا */
+        .manga-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; padding: 20px 5%; }
+        .manga-card { position: relative; background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); display: flex; height: 190px; }
+        .delete-overlay { position: absolute; inset: 0; background: rgba(239, 68, 68, 0.7); display: none; align-items: center; justify-content: center; z-index: 20; color: white; font-size: 2rem; cursor: pointer; }
+        body.delete-mode .delete-overlay { display: flex; }
+        .manga-poster { width: 130px; min-width: 130px; cursor: pointer; }
+        .manga-poster img { width: 100%; height: 100%; object-fit: cover; }
+        .manga-info { padding: 12px; flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; }
+        .manga-title { font-size: 1.1rem; font-weight: 700; color: var(--p); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin: 0 0 5px 0; cursor: pointer; }
+        .manga-tags { display: flex; gap: 5px; margin-bottom: 10px; font-size: 0.7rem; flex-wrap: wrap; }
+        .tag-item { background: var(--sub-bg); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border); color: #aaa; }
+        .latest-chapters-list { display: flex; flex-direction: column; gap: 5px; margin-top: auto; }
+        .chapter-node { background: var(--sub-bg); padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; text-decoration: none; color: var(--text); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+
+        /* القائمة الجانبية */
+        .sidebar { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: var(--side); z-index: 2000; transition: 0.4s; border-left: 1px solid var(--border); }
+        .sidebar.active { right: 0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1500; display: none; backdrop-filter: blur(3px); }
+        .overlay.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button onclick="toggleMenu()" style="background:none; border:none; color:var(--text); font-size:1.3rem; cursor:pointer;"><i class="fas fa-bars"></i></button>
+        <a href="index.html" class="logo">IGRIS MANGA</a>
+        <input type="text" id="searchInput" placeholder="بحث..." onkeyup="searchManga()" style="background:var(--card); border:1px solid var(--border); color:var(--text); padding:8px 15px; border-radius:20px; width:120px; outline:none;">
+    </header>
+
+    <div id="adminFabContainer">
+        <button class="fab-main" onclick="toggleFabMenu()"><i class="fas fa-user-shield"></i></button>
+        <div class="fab-options" id="fabOptions">
+            <button class="fab-btn" onclick="openAddModal()"><i class="fas fa-plus"></i></button>
+            <button class="fab-btn" onclick="window.location.href='add-chapter.html'"><i class="fas fa-file-upload"></i></button>
+            <button class="fab-btn" onclick="toggleDeleteMode()"><i class="fas fa-trash"></i></button>
+        </div>
+    </div>
+
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <h3 style="text-align:center; color:var(--p);">إضافة عمل جديد ✨</h3>
+            <input type="text" id="newMangaId" placeholder="ID الرابط (مثال: solo-leveling)">
+            <input type="text" id="newMangaTitle" placeholder="عنوان القصة">
+            <input type="text" id="newMangaCover" placeholder="رابط صورة الغلاف">
+            
+            <p style="font-size:0.9rem; color:var(--p); margin-bottom:5px;">التصنيفات:</p>
+            <div class="genre-grid">
+                <script>
+                    const genres = ["أكشن", "مغامرة", "خيال", "دراما", "رومانسية", "كوميديا", "رعب", "غموض", "نفسي", "سحر", "قوة خارقة", "فنون قتالية", "تاريخي", "خيال علمي", "مدرسي", "رياضة", "شونين", "سينين", "إيسيكاي", "ويب تون", "نظام"];
+                    document.write(genres.map(g => `
+                        <div style="display:inline-block">
+                            <input type="checkbox" class="genre-checkbox" id="g-${g}" value="${g}">
+                            <label class="genre-tag" for="g-${g}">${g}</label>
+                        </div>
+                    `).join(''));
+                </script>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <select id="newMangaType">
+                    <option value="مانهوا">مانهوا</option>
+                    <option value="مانجا">مانجا</option>
+                    <option value="مانها">مانها</option>
+                    <option value="كوميكس">كوميكس</option>
+                </select>
+                <select id="newMangaStatus">
+                    <option value="مستمرة">مستمرة</option>
+                    <option value="منتهية">منتهية</option>
+                    <option value="متوقفة">متوقفة</option>
+                </select>
+            </div>
+            <textarea id="newMangaDesc" rows="3" placeholder="وصف المانجا..."></textarea>
+            <button class="save-btn" onclick="confirmAddManga()">نشر القصة الآن 🚀</button>
+            <button onclick="closeAddModal()" style="width:100%; background:none; color:#666; border:none; margin-top:10px;">إلغاء</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+    <div class="sidebar" id="sidebar">
+        <div id="sideProfile" style="padding:30px 20px; text-align:center; border-bottom:1px solid var(--border);"></div>
+        <nav style="padding:15px;">
+            <a href="index.html" class="side-item" style="display:block; padding:12px; color:white; text-decoration:none;"><i class="fas fa-home"></i> الرئيسية</a>
+            <div onclick="toggleDarkMode()" style="padding:12px; color:white; cursor:pointer;"><i class="fas fa-moon"></i> الوضع الليلي</div>
+            <a href="#" onclick="handleLogout()" style="padding:12px; color:red; text-decoration:none; display:block;"><i class="fas fa-sign-out-alt"></i> خروج</a>
+        </nav>
+    </div>
+
+    <div class="manga-grid" id="mangaGrid"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDaosiZQoPCo4wdlSDy6UYs0b2PWbkkWXs",
+          authDomain: "igrismanga-db.firebaseapp.com",
+          databaseURL: "https://igrismanga-db-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "igrismanga-db",
+          storageBucket: "igrismanga-db.appspot.com",
+          appId: "1:40861137290:web:03cd9be7175620d4e23073"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const adminEmail = "almsmmalmhtrf22@gmail.com";
+
+        onAuthStateChanged(auth, user => {
+            const adminFab = document.getElementById('adminFabContainer');
+            const side = document.getElementById('sideProfile');
+            if (user) {
+                side.innerHTML = `<img src="${user.photoURL || 'https://ui-avatars.com/api/?name='+user.email}" style="width:70px; border-radius:50%; border:2px solid var(--p);"><h4 style="margin:10px 0 0 0;">${user.displayName || 'المدير'}</h4>`;
+                if (user.email === adminEmail) adminFab.style.display = 'flex';
+            } else {
+                side.innerHTML = `<a href="admin.html" style="color:var(--p); font-size:3rem;"><i class="fas fa-user-circle"></i></a><p>سجل دخول</p>`;
+            }
+        });
+
+        onValue(ref(db, 'manga'), snapshot => {
+            const grid = document.getElementById('mangaGrid');
+            const data = snapshot.val();
+            grid.innerHTML = '';
+            if (data) {
+                Object.keys(data).reverse().forEach(id => {
+                    const m = data[id];
+                    let chs = '';
+                    if (m.chapters) {
+                        Object.keys(m.chapters).sort((a,b)=>b-a).slice(0,3).forEach(ch => {
+                            chs += `<a href="Viewer.html?id=${id}&ch=${ch}" class="chapter-node"><span>فصل ${ch}</span><i class="fas fa-play"></i></a>`;
+                        });
+                    }
+                    grid.innerHTML += `
+                        <div class="manga-card" data-title="${m.title}">
+                            <div class="delete-overlay" onclick="window.confirmDelete('${id}')"><i class="fas fa-trash"></i></div>
+                            <div class="manga-poster" onclick="location.href='reader.html?id=${id}'"><img src="${m.cover}"></div>
+                            <div class="manga-info">
+                                <h3 class="manga-title" onclick="location.href='reader.html?id=${id}'">${m.title}</h3>
+                                <div class="manga-tags">
+                                    <span class="tag-item">${m.type}</span>
+                                    <span class="tag-item" style="color:var(--p)">${m.status}</span>
+                                </div>
+                                <div class="latest-chapters-list">${chs || '<p style="font-size:0.7rem; color:#555;">لا فصول</p>'}</div>
+                            </div>
+                        </div>`;
+                });
+            }
+        });
+
+        window.confirmAddManga = async function() {
+            const id = document.getElementById('newMangaId').value.trim();
+            const title = document.getElementById('newMangaTitle').value;
+            const genres = Array.from(document.querySelectorAll('.genre-checkbox:checked')).map(cb => cb.value);
+            if(!id || !title) return alert("أكمل البيانات!");
+            await set(ref(db, `manga/${id}`), {
+                title, cover: document.getElementById('newMangaCover').value,
+                genres: genres, type: document.getElementById('newMangaType').value,
+                status: document.getElementById('newMangaStatus').value,
+                description: document.getElementById('newMangaDesc').value,
+                createdAt: Date.now()
+            });
+            closeAddModal();
+        };
+
+        window.confirmDelete = (id) => { if(confirm("حذف العمل؟")) remove(ref(db, `manga/${id}`)); };
+        window.handleLogout = () => signOut(auth).then(()=>location.reload());
+    </script>
+
+    <script>
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+        function toggleFabMenu() { document.getElementById('fabOptions').classList.toggle('active'); }
+        function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
+        function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
+        function toggleDeleteMode() { document.body.classList.toggle('delete-mode'); }
+        function searchManga() {
+            let q = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('.manga-card').forEach(c => {
+                c.style.display = c.dataset.title.toLowerCase().includes(q) ? 'flex' : 'none';
+            });
+        }
+        function toggleDarkMode() { document.body.classList.toggle('light-mode'); }
+    </script>
+</body>
+</html>
         .genre-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; background: #000; padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
         .genre-item { display: none; }
         .genre-label { padding: 5px 12px; border-radius: 6px; background: var(--red); color: white; font-size: 0.8rem; cursor: pointer; transition: 0.3s; border: none; user-select: none; }
