@@ -1,0 +1,179 @@
+/* --- الكود الأصلي كما هو بدون حذف حرف --- */
+:root { 
+    --p: #7d2ae8; --bg: #050505; --card: #111; --glow: 0 0 20px rgba(125, 42, 232, 0.3); 
+    --side: #0a0a0a; --text: #fff; --border: #222; --sub-bg: #151515;
+    --red: #ff4d4d; --green: #2ecc71;
+}
+
+body.light-mode { 
+    --bg: #f5f5f5; --card: #ffffff; --side: #ffffff; --text: #111; --border: #ddd; --sub-bg: #f0f0f0; 
+}
+
+body { 
+    background: var(--bg); color: var(--text); font-family: 'Cairo', sans-serif; 
+    margin: 0; padding: 0; overflow-x: hidden; transition: background 0.3s, color 0.3s; 
+    min-height: 100vh; 
+}
+
+header { 
+    background: var(--side); padding: 12px 5%; display: flex; justify-content: space-between; 
+    align-items: center; border-bottom: 2px solid var(--p); position: sticky; 
+    top: 0; z-index: 1000; backdrop-filter: blur(10px); 
+}
+
+.logo { 
+    font-size: 1.5rem; font-weight: 900; color: var(--p); 
+    text-shadow: var(--glow); text-decoration: none; 
+}
+
+/* --- تنسيق التصنيفات الجديد (Genres) --- */
+.genres { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 10px; 
+    margin: 15px 0; 
+    justify-content: center; 
+}
+
+.genre-tag { 
+    background: var(--sub-bg); 
+    color: var(--p); 
+    padding: 6px 16px; 
+    border-radius: 8px; 
+    font-size: 0.85rem; 
+    font-weight: 700; 
+    border: 1px solid var(--border);
+    transition: 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    cursor: default;
+}
+
+.genre-tag:hover {
+    background: var(--p);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* --- أزرار الإدارة العائمة --- */
+#adminFabContainer { position: fixed; bottom: 20px; left: 20px; z-index: 3000; display: none; flex-direction: column-reverse; gap: 12px; align-items: center; }
+.fab-main { width: 55px; height: 55px; background: var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.4rem; cursor: pointer; box-shadow: var(--glow); border: none; transition: 0.3s; }
+.fab-options { display: none; flex-direction: column; gap: 10px; margin-bottom: 5px; }
+.fab-options.active { display: flex; }
+.fab-btn { width: 45px; height: 45px; background: var(--card); border: 2px solid var(--p); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--p); cursor: pointer; transition: 0.3s; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+
+/* --- نافذة الإضافة --- */
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 4000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); padding: 10px; }
+.modal-content { background: var(--card); padding: 25px; border-radius: 15px; width: 100%; max-width: 500px; border: 1px solid var(--p); box-shadow: var(--glow); max-height: 90vh; overflow-y: auto; }
+.modal-content input, .modal-content textarea, .modal-content select { width: 100%; padding: 12px; margin-bottom: 12px; background: #000; border: 1px solid var(--border); color: white; border-radius: 8px; box-sizing: border-box; outline: none; font-family: 'Cairo'; }
+
+/* --- شبكة المانجا (ثبات العرض) --- */
+.manga-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; padding: 20px 5%; }
+
+.manga-card { 
+    position: relative; 
+    background: var(--card) !important; 
+    border-radius: 12px; 
+    overflow: hidden; 
+    transition: 0.3s; 
+    border: 1px solid var(--border); 
+    display: flex !important; 
+    height: 180px; 
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.manga-card[style*="display: none"] { display: none !important; }
+
+.manga-poster { width: 120px; min-width: 120px; cursor: pointer; height: 100%; }
+.manga-poster img { width: 100%; height: 100%; object-fit: cover; }
+
+.manga-info { 
+    padding: 12px; flex-grow: 1; display: flex !important; 
+    flex-direction: column; overflow: hidden; visibility: visible !important;
+}
+
+.manga-title { 
+    font-size: 1.05rem; font-weight: 700; color: var(--p) !important; 
+    margin-bottom: 5px; display: block !important; visibility: visible !important;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.manga-tags { display: flex; gap: 5px; margin-bottom: 8px; font-size: 0.7rem; flex-wrap: wrap; }
+.tag-item { background: var(--sub-bg); padding: 2px 8px; border-radius: 4px; border: 1px solid var(--border); color: #aaa; }
+
+.latest-chapters-list { display: flex; flex-direction: column; gap: 4px; margin-top: auto; }
+.chapter-node { background: var(--sub-bg); padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; text-decoration: none; color: var(--text); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+
+/* --- القائمة الجانبية --- */
+.sidebar { position: fixed; top: 0; right: -300px; width: 280px; height: 100%; background: #1a222d !important; z-index: 2000; transition: 0.4s; border-left: 1px solid #2d3748; display: flex; flex-direction: column; }
+.sidebar.active { right: 0; }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1500; display: none; backdrop-filter: blur(3px); }
+.overlay.active { display: block; }
+
+.nav-item { display: flex; align-items: center; padding: 14px 20px; color: #a0aec0 !important; text-decoration: none; transition: 0.3s; font-size: 0.95rem; border-right: 4px solid transparent; }
+.nav-item i { width: 25px; font-size: 1.1rem; margin-left: 12px; color: var(--p); }
+.nav-item:hover, .nav-item.active { background: rgba(125, 42, 232, 0.1); color: #fff !important; border-right-color: var(--p); }
+
+.user-lists-container { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; background: rgba(0, 0, 0, 0.1); }
+.user-lists-container.open { max-height: 500px; }
+#listArrow.rotate { transform: rotate(180deg); }
+
+/* --- إضافات التحسين والجمالية (New Additions) --- */
+
+/* تأثير التوهج للبطاقات عند التمرير */
+.manga-card:hover {
+    border-color: var(--p);
+    box-shadow: var(--glow);
+    transform: translateY(-3px);
+}
+
+/* تحسين شكل البوستر داخل البطاقة */
+.manga-poster {
+    position: relative;
+    overflow: hidden;
+}
+
+.manga-poster::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent, rgba(0,0,0,0.4));
+}
+
+/* تحسين شكل أزرار الفصول */
+.chapter-node:hover {
+    background: var(--p);
+    color: #fff !important;
+    border-color: var(--p);
+}
+
+/* إضافة لمسة جمالية لشريط التمرير (Scrollbar) */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--p);
+    border-radius: 10px;
+}
+
+/* تحسين شكل المدخلات في النافذة المنبثقة للوضع الفاتح */
+body.light-mode .modal-content input, 
+body.light-mode .modal-content textarea, 
+body.light-mode .modal-content select {
+    background: #fff;
+    color: #111;
+    border-color: #ddd;
+}
+
+/* حركة أنيميشن بسيطة عند ظهور البطاقات */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.manga-card {
+    animation: fadeIn 0.4s ease backwards;
+}
