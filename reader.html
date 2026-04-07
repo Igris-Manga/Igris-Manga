@@ -193,3 +193,162 @@
     </script>
 </body>
 </html>
+        .chapter-item:hover { background: #1a1a1a; transform: translateX(-5px); }
+        .ch-num { font-weight: bold; font-size: 1.1rem; }
+
+        /* لوحة المدير للرفع (مخفية تظهر للمدير فقط) */
+        #adminPanel { max-width: 900px; margin: 20px auto; background: #1a0a2a; padding: 20px; border-radius: 15px; border: 1px dashed var(--p); display: none; }
+        #adminPanel input, #adminPanel textarea { width: 100%; padding: 10px; margin: 10px 0; background: #000; border: 1px solid var(--p); color: #fff; border-radius: 8px; font-family: 'Cairo'; box-sizing: border-box; }
+        .upload-btn { background: var(--p); color: #fff; border: none; padding: 10px 30px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+
+        #loading { text-align: center; padding: 40px; color: var(--p); }
+
+        @media (max-width: 600px) {
+            .manga-header { flex-direction: column; align-items: center; text-align: center; }
+            .info-row { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="top-nav">
+        <a href="index.html" class="back-home"><i class="fas fa-home"></i> الرئيسية</a>
+        <div id="adminBadge" style="display:none; color:var(--red); font-weight:bold;"><i class="fas fa-user-shield"></i> وضع المطور</div>
+    </div>
+
+    <div id="mangaContent">
+        <div class="manga-header">
+            <img id="mangaImg" src="" alt="Cover">
+            <div class="manga-details">
+                <h1 id="mangaTitle">جاري التحميل...</h1>
+                <div class="info-row">
+                    <span class="tag type" id="mangaType">...</span>
+                    <span class="tag status" id="mangaStatus">...</span>
+                </div>
+                <div class="info-row" id="mangaGenres">
+                    </div>
+                <div id="mangaDesc" style="color:#bbb; font-size:0.9rem; line-height:1.6;">...</div>
+                
+                <div class="rating-stars" id="stars">
+                    <span data-v="1">★</span><span data-v="2">★</span><span data-v="3">★</span><span data-v="4">★</span><span data-v="5">★</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="adminPanel">
+            <h3 style="margin-top:0"><i class="fas fa-plus-circle"></i> إضافة فصل جديد لهذه المانجا</h3>
+            <input type="number" id="chapNumber" placeholder="رقم الفصل (مثلاً: 5)">
+            <textarea id="imagesLinks" rows="5" placeholder="ألصق روابط الصور هنا (كل رابط في سطر منفصل)"></textarea>
+            <button class="upload-btn" onclick="uploadChapter()">نشر الفصل الآن 🚀</button>
+        </div>
+
+        <div class="section-title">
+            <i class="fas fa-list-ul"></i> قائمة الفصول
+        </div>
+        
+        <div id="loading" class="loading">جاري جلب الفصول... ⏳</div>
+        <div class="chapters-list" id="chaptersContainer">
+            </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDaosiZQoPCo4wdlSDy6UYs0b2PWbkkWXs",
+          authDomain: "igrismanga-db.firebaseapp.com",
+          databaseURL: "https://igrismanga-db-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "igrismanga-db",
+          storageBucket: "igrismanga-db.appspot.com",
+          appId: "1:40861137290:web:03cd9be7175620d4e23073"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // 1. تحديد أي مانهوا نعرض بناءً على الرابط (مثلاً: manga.html?id=solo-leveling)
+        const urlParams = new URLSearchParams(window.location.search);
+        const mangaId = urlParams.get('id');
+        const adminEmail = "almsmmalmhtrf22@gmail.com";
+
+        if (!mangaId) { window.location.href = 'index.html'; }
+
+        // 2. التحقق من صلاحيات المدير
+        onAuthStateChanged(auth, user => {
+            if (user && user.email === adminEmail) {
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('adminBadge').style.display = 'block';
+            }
+        });
+
+        // 3. جلب بيانات المانجا من Firebase
+        onValue(ref(db, `manga/${mangaId}`), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                document.getElementById('mangaTitle').textContent = data.title;
+                document.getElementById('mangaImg').src = data.cover || 'default-cover.jpg';
+                document.getElementById('mangaType').textContent = data.type || 'مانهوا';
+                document.getElementById('mangaStatus').textContent = data.status || 'مستمرة';
+                document.getElementById('mangaDesc').textContent = data.description || 'لا يوجد وصف متاح حالياً.';
+                
+                // عرض التصنيفات
+                if (data.genres) {
+                    const genresDiv = document.getElementById('mangaGenres');
+                    genresDiv.innerHTML = data.genres.map(g => `<span class="tag">${g}</span>`).join('');
+                }
+
+                // عرض الفصول
+                const chaptersDiv = document.getElementById('chaptersContainer');
+                chaptersDiv.innerHTML = '';
+                document.getElementById('loading').style.display = 'none';
+
+                if (data.chapters) {
+                    // ترتيب الفصول من الأحدث للأقدم
+                    const sortedChaps = Object.keys(data.chapters).sort((a,b) => b - a);
+                    sortedChaps.forEach(num => {
+                        chaptersDiv.innerHTML += `
+                            <a href="reader.html?id=${mangaId}&ch=${num}" class="chapter-item">
+                                <span class="ch-num">الفصل ${num}</span>
+                                <span style="color:#666; font-size:0.8rem;">بواسطة Igris <i class="fas fa-chevron-left"></i></span>
+                            </a>
+                        `;
+                    });
+                } else {
+                    chaptersDiv.innerHTML = '<p style="text-align:center; color:#666;">لا توجد فصول مرفوعة حالياً.</p>';
+                }
+            }
+        });
+
+        // 4. وظيفة الرفع (للمدير)
+        window.uploadChapter = async function() {
+            const num = document.getElementById('chapNumber').value;
+            const links = document.getElementById('imagesLinks').value.split('\n').filter(l => l.trim());
+
+            if (!num || links.length === 0) return alert("أدخل رقم الفصل والروابط!");
+
+            try {
+                await set(ref(db, `manga/${mangaId}/chapters/${num}`), links);
+                alert(`تم نشر الفصل ${num} بنجاح!`);
+                document.getElementById('imagesLinks').value = '';
+                document.getElementById('chapNumber').value = '';
+            } catch (e) {
+                alert("خطأ في الرفع: " + e.message);
+            }
+        };
+
+        // 5. نظام التقييم البسيط (محلي)
+        const stars = document.querySelectorAll('#stars span');
+        stars.forEach(star => {
+            star.onclick = () => {
+                let val = star.getAttribute('data-v');
+                stars.forEach(s => s.classList.remove('active'));
+                for(let i=0; i<val; i++) stars[i].classList.add('active');
+                localStorage.setItem(`rating_${mangaId}`, val);
+            };
+        });
+    </script>
+</body>
+</html>
