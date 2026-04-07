@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Igris Manga | مركز الإشعارات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            --p: #7d2ae8; --bg: #050505; --card: #111; 
+            --text: #fff; --border: #222; --sub-bg: #151515;
+            --glow: 0 0 20px rgba(125, 42, 232, 0.2);
+        }
+
+        /* إصلاح منطق الألوان الفاتحة */
+        [data-theme="light"] {
+            --bg: #f5f5f5; --card: #ffffff; --text: #1a1a1a; 
+            --border: #e0e0e0; --sub-bg: #eeeeee;
+            --glow: 0 0 20px rgba(125, 42, 232, 0.1);
+        }
+
+        body { 
+            background: var(--bg); color: var(--text); font-family: 'Cairo', sans-serif; 
+            margin: 0; padding: 0; transition: background 0.3s, color 0.3s; min-height: 100vh;
+        }
+
+        header { 
+            background: var(--card); padding: 15px 5%; display: flex; 
+            justify-content: space-between; align-items: center; 
+            border-bottom: 2px solid var(--p); position: sticky; top: 0; z-index: 1000;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 900; color: var(--p); text-decoration: none; }
+
+        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
+
+        .back-btn { 
+            display: inline-flex; align-items: center; gap: 8px; 
+            color: var(--text); text-decoration: none; margin-bottom: 20px; 
+            font-size: 0.9rem; opacity: 0.8; transition: 0.3s;
+        }
+        .back-btn:hover { color: var(--p); opacity: 1; }
+
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; border-right: 4px solid var(--p); padding-right: 15px;
+        }
+
+        .notification-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .notif-item {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 15px; display: flex; align-items: flex-start;
+            gap: 15px; transition: 0.3s; position: relative; text-decoration: none; color: inherit;
+        }
+
+        .notif-item:hover { border-color: var(--p); background: rgba(125, 42, 232, 0.05); transform: translateY(-2px); }
+
+        .notif-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--p); flex-shrink: 0; }
+        
+        .notif-icon-box { 
+            width: 50px; height: 50px; border-radius: 12px; background: var(--sub-bg);
+            display: flex; align-items: center; justify-content: center; color: var(--p); font-size: 1.2rem; flex-shrink: 0;
+        }
+
+        .notif-content { flex: 1; min-width: 0; }
+        .notif-user { font-weight: 900; color: var(--p); font-size: 1rem; }
+        .notif-text { font-size: 0.9rem; margin: 5px 0; opacity: 0.9; line-height: 1.4; word-wrap: break-word; }
+        .notif-meta { font-size: 0.75rem; opacity: 0.5; display: flex; align-items: center; gap: 10px; }
+
+        .notif-badge {
+            background: var(--p); color: white; padding: 2px 8px; border-radius: 5px; font-size: 0.7rem; display: inline-block;
+        }
+
+        .comment-preview {
+            background: var(--sub-bg); padding: 8px; border-radius: 8px; 
+            margin-top: 8px; font-size: 0.85rem; border-right: 3px solid var(--p); font-style: italic;
+        }
+
+        #emptyState { text-align: center; padding: 80px 20px; display: none; }
+        #loading { text-align: center; padding: 50px; color: var(--p); }
+
+        .clear-all { color: #ff4d4d; background: none; border: none; cursor: pointer; font-family: 'Cairo'; font-size: 0.85rem; transition: 0.3s; }
+        .clear-all:hover { opacity: 0.7; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="i.html" class="logo">IGRIS MANGA</a>
+        <a href="i.html" style="color: var(--text); font-size: 1.2rem;"><i class="fas fa-home"></i></a>
+    </header>
+
+    <div class="container">
+        <a href="i.html" class="back-btn"><i class="fas fa-arrow-right"></i> العودة إلى الرئيسية</a>
+
+        <div class="page-header">
+            <h2 style="margin: 0;">مركز الإشعارات</h2>
+            <button class="clear-all" id="clearAllBtn"><i class="fas fa-trash"></i> مسح الكل</button>
+        </div>
+
+        <div id="loading"><i class="fas fa-circle-notch fa-spin" style="font-size: 2.5rem;"></i></div>
+
+        <div id="emptyState">
+            <i class="fas fa-bell-slash" style="font-size: 3rem; color: var(--border); margin-bottom: 15px;"></i>
+            <h3>لا توجد إشعارات حالياً</h3>
+            <p>تفاعلات التعليقات وتحديثات مفضلتك ستظهر هنا.</p>
+        </div>
+
+        <div class="notification-list" id="notifList"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDaosiZQoPCo4wdlSDy6UYs0b2PWbkkWXs",
+            authDomain: "igrismanga-db.firebaseapp.com",
+            databaseURL: "https://igrismanga-db-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "igrismanga-db",
+            storageBucket: "igrismanga-db.appspot.com",
+            appId: "1:40861137290:web:03cd9be7175620d4e23073"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // --- إصلاح نظام الثيم (الوضع الليلي والنهاري) ---
+        const applyTheme = () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        };
+        applyTheme();
+
+        onAuthStateChanged(auth, (user) => {
+            const list = document.getElementById('notifList');
+            const loading = document.getElementById('loading');
+            const empty = document.getElementById('emptyState');
+
+            if (user) {
+                const notifRef = ref(db, `users/${user.uid}/notifications`);
+                
+                onValue(notifRef, (snapshot) => {
+                    list.innerHTML = '';
+                    loading.style.display = 'none';
+
+                    if (snapshot.exists()) {
+                        const data = snapshot.val();
+                        // تحويل وتحقق من التوقيت لتجنب الأخطاء
+                        const sortedNotifs = Object.keys(data).map(key => ({ 
+                            id: key, 
+                            ...data[key] 
+                        })).sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+                        let hasVisibleNotif = false;
+                        sortedNotifs.forEach(notif => {
+                            if (["like", "reply", "update_fav", "update_reading"].includes(notif.type)) {
+                                list.appendChild(createNotifElement(notif));
+                                hasVisibleNotif = true;
+                            }
+                        });
+
+                        empty.style.display = hasVisibleNotif ? 'none' : 'block';
+                    } else {
+                        empty.style.display = 'block';
+                    }
+                });
+
+                document.getElementById('clearAllBtn').onclick = () => {
+                    if(confirm("هل أنت متأكد من مسح جميع الإشعارات؟")) {
+                        remove(ref(db, `users/${user.uid}/notifications`));
+                    }
+                };
+            } else {
+                loading.innerHTML = '<p>يرجى تسجيل الدخول لعرض الإشعارات</p>';
+            }
+        });
+
+        function createNotifElement(n) {
+            const item = document.createElement('a');
+            item.className = 'notif-item';
+            item.href = n.link || '#';
+
+            let iconHtml = '';
+            let contentHtml = '';
+
+            if (n.type === 'like' || n.type === 'reply') {
+                iconHtml = `<img src="${n.senderImg || 'https://via.placeholder.com/50'}" class="notif-avatar" onerror="this.src='https://ui-avatars.com/api/?name=${n.senderName}&background=7d2ae8&color=fff'">`;
+                contentHtml = `
+                    <div class="notif-user">${n.senderName || 'مستخدم'}</div>
+                    <div class="notif-text">
+                        ${n.type === 'like' ? 'قام بالإعجاب بتعليقك' : 'رد على تعليقك'}:
+                        <div class="comment-preview">"${n.commentText || '...'}"</div>
+                    </div>
+                `;
+            } else {
+                const icon = n.type === 'update_fav' ? 'fa-heart' : 'fa-book-reader';
+                iconHtml = `<div class="notif-icon-box"><i class="fas ${icon}"></i></div>`;
+                contentHtml = `
+                    <div class="notif-user">${n.mangaTitle || 'مانجا'}</div>
+                    <div class="notif-text">
+                        تحديث جديد: <span class="notif-badge">فصل ${n.chapterNum || '?'}</span> متوفر الآن.
+                    </div>
+                `;
+            }
+
+            item.innerHTML = `
+                ${iconHtml}
+                <div class="notif-content">
+                    ${contentHtml}
+                    <div class="notif-meta">
+                        <span><i class="far fa-clock"></i> ${timeAgo(n.timestamp)}</span>
+                    </div>
+                </div>
+            `;
+            return item;
+        }
+
+        function timeAgo(timestamp) {
+            if (!timestamp) return 'غير معروف';
+            const diff = Math.floor((new Date() - new Date(timestamp)) / 1000);
+            if (diff < 60) return 'الآن';
+            if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
+            if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
+            return `منذ ${Math.floor(diff / 86400)} يوم`;
+        }
+    </script>
+</body>
+</html>
