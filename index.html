@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Igris Manga | الرئيسية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --p: #7d2ae8; 
+            --bg: #050505; 
+            --card: #111; 
+            --glow: 0 0 20px rgba(125, 42, 232, 0.3); 
+            --side: #0a0a0a; 
+            --text: #fff;
+            --border: #222;
+            --sub-bg: #151515;
+        }
+
+        body.light-mode {
+            --bg: #f5f5f5;
+            --card: #ffffff;
+            --side: #ffffff;
+            --text: #111;
+            --border: #ddd;
+            --sub-bg: #f0f0f0;
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--p); border-radius: 10px; }
+
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Cairo', sans-serif; 
+            margin: 0; padding: 0; 
+            overflow-x: hidden; 
+            transition: background 0.3s, color 0.3s; 
+        }
+
+        header { 
+            background: var(--side); 
+            padding: 12px 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid var(--p);
+            position: sticky; top: 0; z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-right { display: flex; align-items: center; gap: 15px; }
+        .menu-toggle { background: none; border: none; color: var(--text); font-size: 1.4rem; cursor: pointer; transition: 0.3s; padding: 5px; }
+        .logo { font-size: 1.5rem; font-weight: 900; color: var(--p); text-shadow: var(--glow); text-decoration: none; }
+        
+        .search-container { position: relative; }
+        #searchInput { 
+            background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 8px 15px; 
+            border-radius: 20px; outline: none; font-family: 'Cairo'; width: 120px; transition: 0.3s;
+        }
+        #searchInput:focus { width: 170px; border-color: var(--p); }
+
+        .sidebar {
+            position: fixed; top: 0; right: -300px; 
+            width: 280px; height: 100%; background: var(--side);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.5); z-index: 2000;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column;
+            border-left: 1px solid var(--border);
+        }
+        .sidebar.active { right: 0; }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 1500;
+            display: none; backdrop-filter: blur(4px);
+        }
+        .overlay.active { display: block; }
+
+        .user-profile {
+            padding: 40px 20px; text-align: center;
+            background: linear-gradient(180deg, var(--border) 0%, var(--side) 100%);
+            border-bottom: 1px solid var(--border);
+        }
+        .user-avatar { width: 85px; height: 85px; border-radius: 50%; border: 3px solid var(--p); margin-bottom: 12px; object-fit: cover; }
+        .user-name { font-weight: 900; font-size: 1.1rem; color: var(--text); display: block; }
+        .user-status { font-size: 0.75rem; color: var(--p); font-weight: bold; }
+
+        .side-links { padding: 15px 0; overflow-y: auto; flex-grow: 1; }
+        
+        .side-item {
+            display: flex; align-items: center; padding: 12px 25px;
+            color: var(--text); text-decoration: none; transition: 0.2s;
+            font-size: 0.95rem; border-right: 4px solid transparent;
+            opacity: 0.8; cursor: pointer; width: 100%; box-sizing: border-box;
+            justify-content: space-between;
+        }
+        .side-item div { display: flex; align-items: center; }
+        .side-item i:first-child { margin-left: 15px; width: 20px; text-align: center; font-size: 1.1rem; }
+        .side-item:hover, .side-item.active { background: rgba(125, 42, 232, 0.1); color: var(--p); border-right-color: var(--p); opacity: 1; }
+
+        .dropdown-icon { transition: 0.3s; font-size: 0.8rem; }
+        .dropdown-active .dropdown-icon { transform: rotate(180deg); }
+
+        .submenu {
+            max-height: 0; overflow: hidden; background: var(--sub-bg);
+            transition: max-height 0.3s ease-out;
+        }
+        .dropdown-active + .submenu { max-height: 400px; }
+
+        .sub-item {
+            display: flex; align-items: center; padding: 10px 45px;
+            color: var(--text); text-decoration: none; font-size: 0.85rem;
+            transition: 0.3s; opacity: 0.7;
+        }
+        .sub-item i { margin-left: 12px; width: 18px; text-align: center; font-size: 1rem; }
+        .sub-item:hover { opacity: 1; color: var(--p); background: rgba(125, 42, 232, 0.05); }
+
+        .mode-switch { display: flex; justify-content: space-between; align-items: center; padding: 12px 25px; color: var(--text); cursor: pointer; }
+        .switch { width: 40px; height: 22px; background: #555; border-radius: 20px; position: relative; transition: 0.3s; }
+        .switch::after { content: ''; position: absolute; width: 16px; height: 16px; background: #fff; border-radius: 50%; top: 3px; left: 3px; transition: 0.3s; }
+        body.light-mode .switch { background: #ccc; }
+        body.light-mode .switch::after { left: 3px; }
+        body:not(.light-mode) .switch { background: var(--p); }
+        body:not(.light-mode) .switch::after { left: 21px; }
+
+        .sidebar-footer { padding: 20px; border-top: 1px solid var(--border); }
+        .support-btn { background: var(--text); color: var(--bg); padding: 12px; border-radius: 8px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-weight: 900; font-size: 0.85rem; }
+        .support-btn:hover { background: var(--p); color: #fff; }
+
+        .hero-banner { width: 100%; height: 300px; background: linear-gradient(to top, var(--bg), transparent), url('https://via.placeholder.com/1200x600/111/333'); background-size: cover; background-position: center; }
+        .main-container { padding: 20px 5% 50px; }
+        
+        .manga-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        
+        .manga-card { 
+            background: var(--card); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            transition: 0.3s; 
+            border: 1px solid var(--border); 
+            display: flex; 
+            height: 220px;
+            position: relative;
+        }
+        .manga-card:hover { transform: translateY(-5px); border-color: var(--p); box-shadow: var(--glow); }
+
+        .manga-poster {
+            width: 140px;
+            min-width: 140px;
+            height: 100%;
+            overflow: hidden;
+            display: block;
+        }
+        .manga-poster img { width: 100%; height: 100%; object-fit: cover; }
+
+        .manga-info {
+            flex-grow: 1;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+
+        .manga-title-link { 
+            text-decoration: none;
+            color: var(--text);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .manga-title { 
+            font-size: 1rem; 
+            font-weight: 900; 
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chapters-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .chapter-item {
+            background: var(--sub-bg);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border);
+            text-decoration: none;
+            color: var(--text);
+            transition: 0.2s;
+        }
+
+        .chapter-item:hover {
+            background: var(--p);
+            color: #fff;
+            border-color: var(--p);
+        }
+
+        .chapter-item.coming-soon {
+            opacity: 0.4;
+            border-style: dashed;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        @media (max-width: 480px) {
+            .manga-grid { grid-template-columns: 1fr; }
+            .manga-card { height: 200px; }
+            .manga-poster { width: 120px; min-width: 120px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="nav-right">
+            <button class="menu-toggle" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+            <a href="index.html" class="logo">IGRIS MANGA</a>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="بحث..." onkeyup="searchManga()">
+        </div>
+    </header>
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+    
+    <div class="sidebar" id="sidebar">
+        <a href="profile-settings.html" style="text-decoration: none; color: inherit;">
+            <div class="user-profile">
+                <img src="https://via.placeholder.com/150/7d2ae8/ffffff?text=User" alt="Soran" class="user-avatar">
+                <span class="user-name">سوران</span>
+                <span class="user-status"><i class="fas fa-crown"></i> عضو مميز</span>
+            </div>
+        </a>
+
+        <nav class="side-links">
+            <a href="index.html" class="side-item active"><div><i class="fas fa-home"></i> الرئيسية</div></a>
+            
+            <div class="side-item" id="userMenuBtn" onclick="toggleSubmenu()">
+                <div><i class="fas fa-list-ul"></i> قوائم المستخدم</div>
+                <i class="fas fa-chevron-down dropdown-icon"></i>
+            </div>
+            
+            <div class="submenu" id="userSubmenu">
+                <a href="favorites.html" class="sub-item"><i class="fas fa-heart"></i> قائمة المفضلة</a>
+                <a href="reading-now.html" class="sub-item"><i class="fas fa-book-open"></i> قائمة أقرأها الآن</a>
+                <a href="read-later.html" class="sub-item"><i class="fas fa-clock"></i> قائمة القراءة لاحقاً</a>
+                <a href="completed.html" class="sub-item"><i class="fas fa-check-circle"></i> قائمة الأعمال المقروءة</a>
+                <a href="notifications.html" class="sub-item"><i class="fas fa-bell"></i> قائمة الإشعارات</a>
+            </div>
+
+            <a href="history.html" class="side-item"><div><i class="fas fa-history"></i> سجل القراءة</div></a>
+            
+            <div class="mode-switch" onclick="toggleDarkMode()">
+                <span><i class="fas fa-moon" style="margin-left:15px; width:20px; text-align:center;"></i> الوضع الليلي</span>
+                <div class="switch"></div>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid var(--border); margin: 10px 20px;">
+            <a href="about.html" class="side-item"><div><i class="fas fa-info-circle"></i> عن إيجريس</div></a>
+            <a href="contact.html" class="side-item"><div><i class="fas fa-envelope"></i> تواصل معنا</div></a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="https://ko-fi.com" target="_blank" class="support-btn">ادعمنا على Ko-fi <i class="fas fa-heart"></i></a>
+        </div>
+    </div>
+
+    <div class="hero-banner"></div>
+    
+    <div class="main-container">
+        <div style="border-right: 4px solid var(--p); padding-right: 12px; margin-bottom: 25px;">
+            <h3 style="margin:0;">آخر التحديثات <small style="color:var(--p); margin-right:10px; font-size:0.8rem;">⚡ تحديث فوري</small></h3>
+        </div>
+
+        <div class="manga-grid" id="mangaGrid">
+             <p id="loadingStatus" style="text-align:center; grid-column: 1/-1;">جاري جلب البيانات من القاعدة...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // تم الحفاظ على الإعدادات الخاصة بك
+        const firebaseConfig = {
+          apiKey: "AIzaSyDaosiZQoPCo4wdlSDy6UYs0b2PWbkkWXs",
+          authDomain: "igrismanga-db.firebaseapp.com",
+          databaseURL: "https://igrismanga-db-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "igrismanga-db",
+          storageBucket: "igrismanga-db.firebasestorage.app",
+          messagingSenderId: "40861137290",
+          appId: "1:40861137290:web:03cd9be7175620d4e23073"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const mangaGrid = document.getElementById('mangaGrid');
+
+        // جلب البيانات مع معالجة الأخطاء لضمان استقرار الواجهة
+        const mangaRef = ref(db, 'manga');
+        onValue(mangaRef, (snapshot) => {
+            try {
+                const data = snapshot.val();
+                mangaGrid.innerHTML = ''; 
+                
+                if (data) {
+                    Object.keys(data).forEach(key => {
+                        const manga = data[key];
+                        if (!manga) return;
+
+                        let chapters = [];
+                        if (manga.chapters) {
+                            // ترتيب الفصول تنازلياً لعرض أحدث الفصول أولاً
+                            chapters = Object.keys(manga.chapters).sort((a, b) => {
+                                let numA = parseFloat(a.replace(/[^\d.]/g, ''));
+                                let numB = parseFloat(b.replace(/[^\d.]/g, ''));
+                                return numB - numA;
+                            });
+                        } else {
+                            chapters = Object.keys(manga)
+                                .filter(k => k.startsWith('ch') || !isNaN(k))
+                                .sort((a, b) => {
+                                    let numA = parseFloat(a.replace(/[^\d.]/g, ''));
+                                    let numB = parseFloat(b.replace(/[^\d.]/g, ''));
+                                    return numB - numA;
+                                });
+                        }
+                        
+                        let chaptersHTML = '';
+                        // عرض أول 3 فصول
+                        chapters.slice(0, 3).forEach(chNum => {
+                            let displayNum = chNum.replace('ch', '').replace('_', '.');
+                            chaptersHTML += `
+                                <a href="Viewer.html?id=${key}&ch=${chNum}" class="chapter-item">
+                                    <span>الفصل ${displayNum}</span>
+                                    <i class="fas fa-play" style="font-size: 0.7rem;"></i>
+                                </a>`;
+                        });
+
+                        const remaining = 3 - chapters.length;
+                        for (let i = 0; i < (remaining > 0 ? remaining : 0); i++) {
+                            chaptersHTML += `
+                                <div class="chapter-item coming-soon">
+                                    <span>قريباً...</span>
+                                    <i class="fas fa-clock" style="font-size: 0.7rem;"></i>
+                                </div>`;
+                        }
+
+                        mangaGrid.innerHTML += `
+                            <div class="manga-card" data-title="${manga.title || key}">
+                                <a href="reader.html?id=${key}" class="manga-poster">
+                                    <img src="${manga.cover || 'https://via.placeholder.com/140x220/111/7d2ae8?text=No+Cover'}" alt="${manga.title || 'Manga'}">
+                                </a>
+                                <div class="manga-info">
+                                    <a href="reader.html?id=${key}" class="manga-title-link">
+                                        <h3 class="manga-title">${manga.title || key}</h3>
+                                    </a>
+                                    <div class="chapters-list">${chaptersHTML}</div>
+                                </div>
+                            </div>`;
+                    });
+                } else {
+                    mangaGrid.innerHTML = '<p style="text-align:center; grid-column:1/-1; opacity:0.5;">لا توجد بيانات حالياً.</p>';
+                }
+            } catch (error) {
+                console.error("Firebase Error:", error);
+                mangaGrid.innerHTML = '<p style="text-align:center; grid-column:1/-1; color:red;">حدث خطأ أثناء جلب البيانات. تأكد من إعدادات الحماية.</p>';
+            }
+        });
+    </script>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        function toggleSubmenu() {
+            document.getElementById('userMenuBtn').classList.toggle('dropdown-active');
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+
+        function searchManga() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.getElementsByClassName('manga-card');
+            for (let card of cards) {
+                let title = card.getAttribute('data-title').toLowerCase();
+                card.style.display = title.includes(input) ? "flex" : "none";
+            }
+        }
+
+        if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+    </script>
+</body>
+</html>
