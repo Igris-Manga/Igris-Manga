@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>القارئ الذكي | Igris Manga</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --p: #7d2ae8; --bg: #000000; --text: #ffffff; 
+            --header-bg: rgba(5, 5, 5, 0.98); --border: #151515;
+        } 
+
+        body { background: var(--bg); margin: 0; padding: 0; overflow-x: hidden; font-family: 'Cairo', sans-serif; color: var(--text); }
+        
+        .v-header { 
+            position: fixed; top: 0; width: 100%; background: var(--header-bg); 
+            border-bottom: 2px solid var(--p); height: 70px; display: flex; 
+            justify-content: space-between; align-items: center; z-index: 1000; 
+            padding: 0 5%; box-sizing: border-box; backdrop-filter: blur(10px);
+        }
+        
+        .chapter-title { color: var(--text); font-weight: 900; font-size: 1.1rem; }
+        
+        .nav-btn-header { 
+            background: var(--p); color: #fff; padding: 8px 18px; border-radius: 8px; 
+            text-decoration: none; font-weight: bold; font-size: 1.2rem; transition: 0.3s; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 0 15px rgba(125, 42, 232, 0.4); border: none; cursor: pointer; 
+        }
+        
+        /* حالة السهم الباهت عند انتهاء الفصول */
+        .nav-btn-header.disabled { 
+            background: #111 !important; 
+            color: #333 !important; 
+            cursor: not-allowed !important; 
+            box-shadow: none !important;
+            opacity: 0.5;
+            pointer-events: none; /* يمنع الضغط تماماً */
+        }
+
+        .v-container { width: 100vw; margin-top: 70px; line-height: 0; background: #000; }
+        .v-page { width: 100%; height: auto; display: block; margin: 0; padding: 0; border: none; }
+
+        .v-footer { padding: 60px 20px; text-align: center; color: #666; border-top: 1px solid var(--border); }
+        .footer-btn { display: flex; align-items: center; justify-content: center; padding: 16px; border-radius: 12px; text-decoration: none; font-weight: bold; transition: 0.3s; margin: 10px auto; max-width: 400px; }
+        .btn-list { background: var(--p); color: #fff; }
+        .btn-home { background: #0a0a0a; color: #888; border: 1px solid var(--border); }
+
+        #loading { position: fixed; inset: 0; background: #000; z-index: 2000; display: flex; align-items: center; justify-content: center; color: var(--p); }
+    </style>
+</head>
+<body> 
+
+    <div id="loading"><i class="fas fa-spinner fa-spin" style="font-size: 3rem;"></i></div>
+
+    <div class="v-header">
+        <div class="nav-controls">
+             <button id="nextBtn" class="nav-btn-header">»</button>
+        </div>
+        <span class="chapter-title" id="chapterDisplay">...</span>
+        <div class="nav-controls">
+            <button id="prevBtn" class="nav-btn-header">«</button>
+        </div>
+    </div>
+
+    <div class="v-container" id="engine"></div>
+
+    <div class="v-footer">
+        <p id="endText" style="color:#eee; font-weight:bold;"></p>
+        <a id="listLink" href="reader.html" class="footer-btn btn-list">قائمة الفصول ☰</a>
+        <a href="i.html" class="footer-btn btn-home">الرئيسية 🏠</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDaosiZQoPCo4wdlSDy6UYs0b2PWbkkWXs",
+            authDomain: "igrismanga-db.firebaseapp.com",
+            databaseURL: "https://igrismanga-db-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "igrismanga-db",
+            storageBucket: "igrismanga-db.appspot.com",
+            appId: "1:40861137290:web:03cd9be7175620d4e23073"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        const params = new URLSearchParams(window.location.search);
+        const mangaId = params.get('id'); // سحب ايدي المانجا
+        const currentCh = parseInt(params.get('ch')) || 1;
+
+        // تحديث رابط قائمة الفصول ليعود لنفس المانجا
+        document.getElementById('listLink').href = `reader.html?id=${mangaId}`;
+
+        async function loadViewer() {
+            try {
+                const snapshot = await get(ref(db, `manga/${mangaId}`));
+                if (snapshot.exists()) {
+                    const mangaData = snapshot.val();
+                    const chapters = mangaData.chapters || {};
+                    const chapterData = chapters[currentCh];
+                    
+                    // تحويل مفاتيح الفصول لأرقام وترتيبها
+                    const availableChapters = Object.keys(chapters).map(Number).sort((a, b) => a - b);
+
+                    // 1. عرض الصور (بناءً على الصور المخزنة في قاعدة البيانات)
+                    const engine = document.getElementById('engine');
+                    if (chapterData && chapterData.pages) {
+                        chapterData.pages.forEach(url => {
+                            const img = document.createElement('img');
+                            img.src = url;
+                            img.className = 'v-page';
+                            img.loading = 'lazy';
+                            engine.appendChild(img);
+                        });
+                    }
+
+                    // 2. تحديث العناوين
+                    document.getElementById('chapterDisplay').innerText = `الفصل ${currentCh}`;
+                    document.getElementById('endText').innerText = `نهاية الفصل ${currentCh} - مانهوا ${mangaData.title}`;
+
+                    // 3. منطق الأسهم (الاعتماد الكامل على الفصول المتاحة)
+                    const nextCh = availableChapters.find(n => n > currentCh);
+                    const prevCh = [...availableChapters].reverse().find(n => n < currentCh);
+
+                    const nBtn = document.getElementById('nextBtn');
+                    const pBtn = document.getElementById('prevBtn');
+
+                    if (nextCh) {
+                        nBtn.onclick = () => window.location.href = `Viewer.html?id=${mangaId}&ch=${nextCh}`;
+                    } else {
+                        nBtn.classList.add('disabled'); // تعطيل إذا كان الفصل الأخير
+                    }
+
+                    if (prevCh) {
+                        pBtn.onclick = () => window.location.href = `Viewer.html?id=${mangaId}&ch=${prevCh}`;
+                    } else {
+                        pBtn.classList.add('disabled'); // تعطيل إذا كان الفصل الأول
+                    }
+
+                }
+                document.getElementById('loading').style.display = 'none';
+            } catch (error) {
+                console.error("خطأ في التحميل:", error);
+                alert("تعذر تحميل الفصل!");
+            }
+        }
+
+        if (mangaId) {
+            loadViewer();
+        } else {
+            window.location.href = 'i.html'; // ارجع للرئيسية لو مفيش ايدي
+        }
+    </script>
+</body>
+</html>
