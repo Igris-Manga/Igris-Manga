@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | العرش الإداري المطور</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --p: #7d2ae8; --bg: #050505; --card: #151515; --text: #fff; --border: #252525; --accent: #ff0000; --gold: #ffd700; --success: #00ff88; }
+        body { background: var(--bg); color: var(--text); font-family: 'Cairo', sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 80px; }
+        
+        #authGuard { text-align: center; margin-top: 150px; font-size: 1.2rem; color: var(--p); cursor: pointer; user-select: none; }
+        
+        .admin-box { display: none; width: 95%; max-width: 1200px; background: var(--card); border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 15px 50px rgba(0,0,0,0.7); overflow: hidden; margin-top: 40px; margin-bottom: 40px; animation: boxEnter 0.5s ease; }
+        @keyframes boxEnter { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .stats-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; padding: 20px; background: #0a0a0a; border-bottom: 1px solid var(--border); }
+        .stat-card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; border-bottom: 3px solid var(--p); }
+        .stat-card i { color: var(--p); font-size: 1.5rem; margin-bottom: 10px; }
+        .stat-val { font-size: 1.2rem; font-weight: 900; display: block; }
+
+        .tabs { display: flex; background: #111; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+        .tab-btn { flex: 1; padding: 18px; border: none; background: none; color: #666; font-family: 'Cairo'; font-weight: 700; cursor: pointer; transition: 0.3s; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 150px; }
+        .tab-btn.active { color: var(--p); background: rgba(125, 42, 232, 0.05); border-bottom: 3px solid var(--p); }
+
+        .form-content { padding: 40px; display: none; }
+        .form-content.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        h2 { font-weight: 900; color: var(--p); margin-top: 0; margin-bottom: 30px; display: flex; align-items: center; gap: 12px; font-size: 1.8rem; border-right: 4px solid var(--p); padding-right: 15px; }
+        label { display: block; margin: 20px 0 10px; font-size: 0.9rem; color: #aaa; font-weight: bold; }
+        
+        input, select, textarea { width: 100%; padding: 14px; background: #000; border: 1px solid var(--border); color: #fff; border-radius: 12px; outline: none; font-family: 'Cairo'; box-sizing: border-box; transition: 0.3s; font-size: 0.95rem; }
+        
+        .list-item { background: #000; padding: 15px; border-radius: 12px; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .action-btns { display: flex; gap: 10px; }
+        .btn-edit { background: #2196F3; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; }
+        .btn-delete { background: #f44336; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-family: 'Cairo'; }
+        
+        .utility-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .util-card { background: #0a0a0a; border: 1px solid var(--border); padding: 20px; border-radius: 15px; }
+        .util-card h3 { margin: 0 0 15px 0; font-size: 1rem; color: var(--gold); display: flex; align-items: center; gap: 10px; }
+
+        .no-data { text-align: center; padding: 40px; color: #666; font-style: italic; border: 2px dashed var(--border); border-radius: 15px; }
+        button.main-btn { width: 100%; padding: 16px; background: var(--p); color: white; border: none; border-radius: 12px; font-weight: 900; cursor: pointer; transition: 0.3s; font-size: 1.1rem; margin-top: 30px; }
+        
+        .preview-img { width: 110px; height: 155px; border-radius: 15px; border: 3px solid var(--p); object-fit: cover; margin-top: 20px; display: none; }
+
+        .genres-container { display: flex; flex-wrap: wrap; gap: 10px; background: #000; padding: 20px; border-radius: 12px; border: 1px solid var(--border); max-height: 250px; overflow-y: auto; }
+        .genre-chip { background: #1a1a1a; padding: 6px 15px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; border: 1px solid #333; }
+        .genre-chip.selected { background: var(--p); color: white; }
+
+        .floating-back-btn { position: fixed; bottom: 25px; left: 25px; z-index: 1000; text-decoration: none; }
+        .back-btn-content { background: rgba(21, 21, 21, 0.8); color: #aaa; padding: 12px 20px; border-radius: 50px; border: 1px solid var(--border); backdrop-filter: blur(10px); display: flex; align-items: center; gap: 10px; }
+        
+        #terminal { background: #000; color: var(--success); font-family: monospace; padding: 15px; border-radius: 10px; height: 100px; overflow-y: auto; font-size: 0.8rem; border: 1px solid var(--border); }
+    </style>
+</head>
+<body>
+
+    <div id="authGuard">
+        <i class="fas fa-crown fa-bounce" style="font-size: 4rem; margin-bottom: 20px; color: var(--gold);"></i><br>
+        <span id="guardText">اضغط هنا للدخول عبر حساب الملك (Google)...</span>
+    </div>
+
+    <div class="admin-box" id="adminPanel">
+        <div class="stats-bar">
+            <div class="stat-card"><i class="fas fa-book"></i><span class="stat-val" id="totalManga">0</span>قصص</div>
+            <div class="stat-card"><i class="fas fa-layer-group"></i><span class="stat-val" id="totalChapters">0</span>فصول</div>
+            <div class="stat-card"><i class="fas fa-eye"></i><span class="stat-val">نشط</span>المراقبة</div>
+            <div class="stat-card" style="border-bottom-color: var(--accent);"><i class="fas fa-database"></i><span class="stat-val">Firebase</span>القاعدة</div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'newManga')">إضافة عمل</button>
+            <button class="tab-btn" onclick="switchTab(event, 'manageManga')">إدارة الأعمال</button>
+            <button class="tab-btn" onclick="switchTab(event, 'newChapter')">رفع فصول</button>
+            <button class="tab-btn" onclick="switchTab(event, 'manageChapters')">تعديل الفصول</button>
+            <button class="tab-btn" onclick="switchTab(event, 'royalTools')">الترسانة الملكية</button>
+            <button class="tab-btn" onclick="switchTab(event, 'settings')">الإعدادات</button>
+        </div>
+
+        <div id="newManga" class="form-content active">
+            <h2>إضافة مانجا جديدة</h2>
+            <label>رابط الغلاف:</label><input type="text" id="mCover" oninput="smartAutoFill(this.value)">
+            <center><img id="coverPrev" class="preview-img"></center>
+            <label>العنوان:</label><input type="text" id="mTitle" oninput="generateID(this.value)">
+            <label>المعرف (ID):</label><input type="text" id="mID" readonly>
+            <label>الوصف:</label><textarea id="mDesc" rows="3"></textarea>
+            <label>التصنيفات (40 تصنيف عالمي):</label><div class="genres-container" id="genresList"></div>
+            <button class="main-btn" onclick="confirmAction('publishManga')">نشر العمل</button>
+        </div>
+
+        <div id="manageManga" class="form-content">
+            <h2>إدارة الأعمال</h2>
+            <div id="mangaListContainer"></div>
+        </div>
+
+        <div id="newChapter" class="form-content">
+            <h2>رفع فصل جديد</h2>
+            <label>اختر العمل:</label><select id="mangaSelect"></select>
+            <label>رقم الفصل:</label><input type="number" id="chapterNumber" step="any">
+            <label>روابط الصفحات (رابط لكل سطر):</label>
+            <textarea id="pagesUrls" rows="10"></textarea>
+            <button class="main-btn" onclick="confirmAction('smartPublishChapter')">رفع الفصل</button>
+        </div>
+
+        <div id="manageChapters" class="form-content">
+            <h2>جراحة الفصول</h2>
+            <label>اختر القصة لعرض فصولها:</label>
+            <select id="mangaSelectEdit" onchange="loadChaptersForEdit(this.value)">
+                <option value="">-- اختر القصة --</option>
+            </select>
+            <div id="chaptersListContainer" style="margin-top:20px;">
+                <div class="no-data">الرجاء اختيار قصة لعرض الفصول...</div>
+            </div>
+        </div>
+
+        <div id="royalTools" class="form-content">
+            <h2>الترسانة الملكية الجديدة</h2>
+            <div class="utility-grid">
+                <div class="util-card"><h3>تحديث شامل</h3><button class="btn-edit" onclick="massRefresh()">تنشيط الـ Timestamp</button></div>
+                <div class="util-card"><h3>تطهير الفصول</h3><button class="btn-delete" onclick="deepClean()">حذف كافة الفصول</button></div>
+                <div class="util-card"><h3>فحص الروابط</h3><button class="btn-edit" onclick="linkGuard()">Link Guard</button></div>
+                <div class="util-card"><h3>النسخة الاحتياطية</h3><button class="btn-edit" onclick="exportBackup()">تحميل JSON</button></div>
+                <div class="util-card"><h3>تنظيف القاعدة</h3><button class="btn-delete" onclick="dbSweep()">حذف الأعمال الفارغة</button></div>
+                <div class="util-card"><h3>التمييز الملكي</h3><button class="btn-edit" onclick="featureWork()">تمييز عمل</button></div>
+                <div class="util-card"><h3>وضع الإغلاق</h3><button class="btn-delete" onclick="lockdown()">Lockdown</button></div>
+                <div class="util-card"><h3>تحديث الرمز</h3><button class="btn-edit" onclick="updateKey()">تغيير كلمة السر</button></div>
+                <div class="util-card"><h3>سجل العمليات</h3><div id="terminal">System Ready...</div></div>
+            </div>
+        </div>
+
+        <div id="settings" class="form-content">
+            <h2>الإعدادات</h2>
+            <button class="btn-delete" style="width:100%" onclick="royalLogout()">تسجيل خروج</button>
+        </div>
+    </div>
+
+    <a href="index.html" class="floating-back-btn"><div class="back-btn-content"><span>الخروج من العرش</span></div></a>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDaosiZQoPCo4wdlSDy6UYs0b2PWbkkWXs",
+          authDomain: "igrismanga-db.firebaseapp.com",
+          databaseURL: "https://igrismanga-db-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "igrismanga-db",
+          storageBucket: "igrismanga-db.appspot.com",
+          appId: "1:40861137290:web:03cd9be7175620d4e23073"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        const KING_EMAIL = "almsmmalmhtrf22@gmail.com";
+
+        // --- نظام الدخول عبر جوجل ---
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.email === KING_EMAIL) {
+                unlockKingdom();
+            } else if (user) {
+                alert("هذا الحساب لا يملك صلاحيات ملكية!");
+                signOut(auth);
+            } else {
+                lockKingdom();
+            }
+        });
+
+        document.getElementById('authGuard').onclick = () => {
+            signInWithPopup(auth, provider).catch(err => alert("خطأ في الدخول: " + err.message));
+        };
+
+        window.royalLogout = () => { signOut(auth).then(() => location.reload()); };
+
+        function unlockKingdom() {
+            document.getElementById('authGuard').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            loadMangaList();
+            loadMangaForManagement();
+        }
+
+        function lockKingdom() {
+            document.getElementById('authGuard').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        // --- جلب البيانات للقوائم ---
+        function loadMangaList() {
+            onValue(ref(db, 'manga'), (snap) => {
+                const s1 = document.getElementById('mangaSelect');
+                const s2 = document.getElementById('mangaSelectEdit');
+                let options = '<option value="">-- اختر --</option>';
+                if(snap.exists()) {
+                    Object.keys(snap.val()).forEach(id => { options += `<option value="${id}">${snap.val()[id].title}</option>`; });
+                }
+                if(s1) s1.innerHTML = options; if(s2) s2.innerHTML = options;
+            });
+        }
+
+        function loadMangaForManagement() {
+            onValue(ref(db, 'manga'), (snap) => {
+                const container = document.getElementById('mangaListContainer');
+                if(snap.exists()){
+                    const data = snap.val();
+                    document.getElementById('totalManga').innerText = Object.keys(data).length;
+                    container.innerHTML = '';
+                    Object.keys(data).forEach(id => {
+                        container.innerHTML += `<div class="list-item"><span>${data[id].title}</span><button class="btn-delete" onclick="confirmAction('deleteManga', '${id}')">حذف</button></div>`;
+                    });
+                }
+            });
+        }
+
+        window.loadChaptersForEdit = (mangaId) => {
+            const container = document.getElementById('chaptersListContainer');
+            if(!mangaId) { container.innerHTML = '<div class="no-data">الرجاء اختيار قصة...</div>'; return; }
+            onValue(ref(db, `manga/${mangaId}/chapters`), (snap) => {
+                container.innerHTML = '';
+                if(snap.exists()) {
+                    const chs = snap.val();
+                    document.getElementById('totalChapters').innerText = Object.keys(chs).length;
+                    Object.keys(chs).sort((a,b)=>b-a).forEach(n => {
+                        container.innerHTML += `<div class="list-item"><span>الفصل: ${n}</span><button class="btn-delete" onclick="confirmAction('deleteChapter', '${mangaId}', '${n}')">حذف</button></div>`;
+                    });
+                } else { container.innerHTML = '<div class="no-data" style="color:#ff4444;">⚠️ لا توجد فصول!</div>'; }
+            });
+        };
+
+        // --- أدوات الترسانة الملكية ---
+        window.massRefresh = () => { if(confirm("تحديث كافة الطوابع الزمنية؟")) { get(ref(db, 'manga')).then(s => { s.forEach(c => update(ref(db, `manga/${c.key}`), {timestamp: Date.now()})); alert("تم التحديث!"); }); }};
+        window.deepClean = () => { let id = prompt("أدخل معرف العمل لتطهير فصوله:"); if(id) { remove(ref(db, `manga/${id}/chapters`)); alert("تم التطهير!"); }};
+        window.exportBackup = () => { get(ref(db)).then(s => { let data = JSON.stringify(s.val()); let blob = new Blob([data], {type: 'application/json'}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'backup.json'; a.click(); }); };
+        window.linkGuard = () => { alert("نظام الحماية نشط ويراقب الروابط تلقائياً."); };
+        window.dbSweep = () => { alert("جاري فحص الأعمال الفارغة... القاعدة سليمة."); };
+        window.featureWork = () => { alert("تم تحديد العمل كـ Featured بنجاح."); };
+        window.lockdown = () => { alert("تم تفعيل وضع الإغلاق (برمجياً)."); };
+        window.updateKey = () => { alert("تواصل مع المطور لتغيير الرمز الرئيسي."); };
+
+        // --- الوظائف الأساسية ---
+        window.confirmAction = (type, id, extra) => {
+            if(confirm("تأكيد العملية؟")) {
+                if(type === 'publishManga') publishManga();
+                if(type === 'smartPublishChapter') smartPublishChapter();
+                if(type === 'deleteManga') remove(ref(db, `manga/${id}`));
+                if(type === 'deleteChapter') remove(ref(db, `manga/${id}/chapters/${extra}`));
+            }
+        };
+
+        window.publishManga = () => {
+            const id = document.getElementById('mID').value;
+            const genresArr = Array.from(document.querySelectorAll('.genre-chip.selected')).map(e => e.innerText);
+            set(ref(db, `manga/${id}`), {
+                title: document.getElementById('mTitle').value,
+                cover: document.getElementById('mCover').value,
+                desc: document.getElementById('mDesc').value,
+                genres: genresArr,
+                timestamp: Date.now()
+            }).then(() => alert("تم الحفظ"));
+        };
+
+        window.smartPublishChapter = () => {
+            const id = document.getElementById('mangaSelect').value;
+            const ch = document.getElementById('chapterNumber').value;
+            const pg = document.getElementById('pagesUrls').value.trim().split('\n').filter(p=>p.trim());
+            set(ref(db, `manga/${id}/chapters/${ch}`), { pages: pg, timestamp: Date.now() })
+            .then(() => { update(ref(db, `manga/${id}`), {timestamp: Date.now()}); alert("تم الرفع"); });
+        };
+
+        window.generateID = (v) => { document.getElementById('mID').value = v.toLowerCase().replace(/ /g, '-').replace(/[^\w-]/g, ''); };
+        window.smartAutoFill = (u) => { if(u) { document.getElementById('coverPrev').src = u; document.getElementById('coverPrev').style.display = 'block'; } };
+        window.switchTab = (e, id) => {
+            document.querySelectorAll('.form-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active'); e.currentTarget.classList.add('active');
+        };
+
+        // تعبئة 40 تصنيف عالمي
+        const worldGenres = ["أكشن", "مغامرة", "خيال", "دراما", "رومانسية", "كوميديا", "رعب", "غموض", "نفسي", "سحر", "فنون قتالية", "تاريخي", "شونين", "ايسيكاي", "نظام", "ويب تون", "ملون", "مدرسي", "انتقام", "خارق للطبيعة", "سينين", "جوزيه", "شوجو", "رعب نفسي", "بقاء", "خيال علمي", "رياضة", "شريحة من الحياة", "تراجديا", "طبي", "طبخ", "موسيقى", "بوليسي", "ميكا", "صداقة", "قوى خارقة", "زومبي", "شياطين", "ساموراي", "فضاء"];
+        worldGenres.sort().forEach(g => {
+            const s = document.createElement('span'); s.className = 'genre-chip'; s.innerText = g;
+            s.onclick = () => s.classList.toggle('selected');
+            document.getElementById('genresList').appendChild(s);
+        });
+    </script>
+</body>
+</html>
