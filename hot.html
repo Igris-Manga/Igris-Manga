@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أعمال شائعة | Igris Manga</title>
+    <style>
+        /* التنسيقات الاحترافية - ثيم إيجريس */
+        :root {
+            --igris-purple: #8a2be2;
+            --dark-bg: #050505;
+            --card-bg: #111111;
+            --text-gray: #b0b0b0;
+            --gold: #f1c40f;
+            --heart: #ff4757;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0; padding: 0;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        .section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px; border-right: 5px solid var(--igris-purple); padding-right: 15px;
+        }
+
+        .home-btn {
+            text-decoration: none; color: #fff; background: linear-gradient(45deg, var(--igris-purple), #4b0082);
+            padding: 10px 25px; border-radius: 12px; font-weight: bold; transition: 0.3s;
+        }
+
+        .manga-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 25px;
+        }
+
+        /* تصميم البطاقة المستدعى من البيانات */
+        .manga-card {
+            background: var(--card-bg); border-radius: 15px; overflow: hidden;
+            border: 1px solid #222; transition: 0.4s ease; text-decoration: none; color: inherit; display: block;
+        }
+
+        .manga-card:hover { transform: translateY(-12px); border-color: var(--igris-purple); }
+
+        .manga-poster { position: relative; aspect-ratio: 2/3; overflow: hidden; }
+        .manga-poster img { width: 100%; height: 100%; object-fit: cover; }
+
+        .stats-overlay {
+            position: absolute; bottom: 10px; right: 10px; left: 10px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .hearts-tag {
+            background: rgba(0, 0, 0, 0.8); color: var(--heart); padding: 3px 8px;
+            border-radius: 8px; font-size: 0.8rem; font-weight: bold; backdrop-filter: blur(5px);
+        }
+
+        .status-tag { background: var(--igris-purple); color: white; padding: 3px 8px; border-radius: 8px; font-size: 0.7rem; font-weight: bold; }
+
+        .manga-info { padding: 15px; text-align: center; }
+        .manga-info h3 { font-size: 1rem; margin: 0 0 8px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        .rating-box { display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .stars { color: var(--gold); font-size: 0.9rem; }
+        .rating-num { color: var(--text-gray); font-size: 0.8rem; }
+
+        /* أنيميشن التحميل */
+        .loader { text-align: center; grid-column: 1/-1; padding: 50px; font-size: 1.2rem; color: var(--igris-purple); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header class="section-header">
+        <h1 class="section-title">🔥 أعمال شائعة</h1>
+        <a href="index.html" class="home-btn">الرئيسية</a>
+    </header>
+
+    <div class="manga-grid" id="manga-container">
+        <div class="loader">جاري جلب المعلومات...</div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    // إعدادات Firebase الخاصة بك
+    const firebaseConfig = {
+        databaseURL: "https://igris-manga-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // 1. الاتصال بمرجع المانجا وترتيبها حسب القلوب
+    const mangaRef = query(ref(db, 'mangas'), orderByChild('hearts'));
+
+    onValue(mangaRef, (snapshot) => {
+        const container = document.getElementById('manga-container');
+        container.innerHTML = ""; // حذف رسالة التحميل
+
+        let mangaList = [];
+        snapshot.forEach((childSnapshot) => {
+            // جلب البيانات مع الـ ID الخاص بكل قصة
+            mangaList.push({ id: childSnapshot.key, ...childSnapshot.val() });
+        });
+
+        // 2. ترتيب تنازلي (الأكثر قلوباً أولاً)
+        mangaList.reverse().forEach((manga) => {
+            createMangaCard(manga, container);
+        });
+    });
+
+    // 3. دالة بناء البطاقة وربطها بـ reader.html
+    function createMangaCard(manga, container) {
+        const card = document.createElement('a');
+        card.href = `reader.html?id=${manga.id}`; // تمرير ID القصة للملف التالي
+        card.className = 'manga-card';
+
+        // تنسيق عدد القلوب (مثل 1.2k)
+        const displayHearts = manga.hearts >= 1000 ? (manga.hearts / 1000).toFixed(1) + 'k' : manga.hearts;
+
+        // بناء النجوم برمجياً
+        let starsHTML = "";
+        for (let i = 1; i <= 5; i++) {
+            starsHTML += i <= Math.round(manga.rating) ? "★" : "☆";
+        }
+
+        card.innerHTML = `
+            <div class="manga-poster">
+                <img src="${manga.image}" alt="${manga.title}" onerror="this.src='https://via.placeholder.com/200x300/111/8a2be2?text=Error'">
+                <div class="stats-overlay">
+                    <span class="hearts-tag">❤️ ${displayHearts}</span>
+                    <span class="status-tag">${manga.status || 'مستمر'}</span>
+                </div>
+            </div>
+            <div class="manga-info">
+                <h3>${manga.title}</h3>
+                <div class="rating-box">
+                    <div class="stars">${starsHTML}</div>
+                    <span class="rating-num">(${manga.rating || '0.0'})</span>
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    }
+</script>
+
+</body>
+</html>
