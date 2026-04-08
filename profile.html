@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة المستخدم | Igris Manga</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            --p: #7d2ae8; --bg: #000; --card: rgba(10, 10, 10, 0.95); --text: #fff; 
+            --border: #151515; --glow: 0 0 30px rgba(125, 42, 232, 0.4);
+            --p-light: #ab6ffc;
+            --dev: #00ffcc; 
+        }
+
+        body { 
+            background: var(--bg); color: var(--text); font-family: 'Cairo', sans-serif; 
+            margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            background-image: radial-gradient(circle at 10% 10%, rgba(125, 42, 232, 0.1), transparent), radial-gradient(circle at 90% 90%, rgba(10, 10, 10, 0.1), transparent);
+            overflow-x: hidden;
+        }
+
+        .auth-container { 
+            width: 95%; max-width: 650px; background: var(--card); 
+            border: 1px solid var(--border); border-radius: 30px; padding: 50px;
+            backdrop-filter: blur(25px); box-shadow: var(--glow); position: relative; overflow: hidden;
+            z-index: 1; transition: 0.3s; display: none;
+        }
+
+        .auth-container::before {
+            content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%;
+            background: conic-gradient(transparent, var(--border), transparent, var(--p), transparent, var(--border));
+            animation: rotate 12s linear infinite; z-index: -1; opacity: 0.2;
+        }
+        
+        @keyframes rotate { 100% { transform: rotate(360deg); } }
+
+        .profile-header { text-align: center; margin-bottom: 40px; position: relative; }
+        .user-avatar { 
+            width: 130px; height: 130px; border-radius: 50%; border: 4px solid var(--p);
+            margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;
+            background: #111; font-size: 3.5rem; font-weight: 900; color: var(--p); box-shadow: var(--glow);
+            overflow: hidden; cursor: pointer; transition: 0.3s; position: relative;
+        }
+        .user-avatar:hover { border-color: var(--p-light); transform: scale(1.03); }
+        .user-avatar:hover::after { content: '\f030'; font-family: 'Font Awesome 6 Free'; position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: #fff; }
+        .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+        .badge-dev { background: var(--dev); color: #000; font-size: 0.7rem; padding: 2px 10px; border-radius: 20px; vertical-align: middle; margin-right: 10px; box-shadow: 0 0 10px var(--dev); }
+        .dev-border { border-color: var(--dev) !important; box-shadow: 0 0 20px rgba(0, 255, 204, 0.2) !important; }
+
+        .p-name { margin: 15px 0 5px; font-weight: 900; font-size: 2.2rem; text-shadow: 0 0 10px var(--p); }
+        .p-email { color: #666; font-size: 1rem; margin-top: 5px; opacity: 0.8; }
+        
+        .dashboard-section { margin-top: 40px; text-align: right; }
+        .section-title { font-size: 1.1rem; font-weight: bold; color: #555; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
+
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stat-card { background: #070707; border: 1px solid var(--border); border-radius: 12px; padding: 15px; text-align: center; transition: 0.3s; }
+        .stat-card i { color: var(--p); font-size: 1.5rem; margin-bottom: 5px; }
+        .stat-card h3 { color: #fff; margin: 0; font-size: 1.4rem; font-weight: 900; }
+
+        .p-links { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; }
+        .p-links li a { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: #070707; border: 1px solid var(--border); border-radius: 12px; color: #fff; text-decoration: none; transition: 0.3s; }
+        .p-links li a:hover { border-color: var(--p); color: var(--p); transform: translateX(-5px); }
+
+        .sync-section { margin-top: 30px; background: #050505; padding: 20px; border-radius: 15px; border: 1px solid var(--border); text-align: center; }
+        .sync-bar-container { width: 100%; height: 8px; background: #111; border-radius: 10px; position: relative; overflow: hidden; }
+        .sync-bar { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--p); border-radius: 10px; transition: 0.6s ease-out; box-shadow: 0 0 10px var(--p); }
+
+        .input-group { margin-bottom: 25px; text-align: right; }
+        .input-group label { display: block; font-size: 0.9rem; color: #888; margin-bottom: 5px; }
+        .input-group input { width: 100%; background: #050505; border: 1px solid var(--border); padding: 16px; border-radius: 15px; color: #fff; font-family: 'Cairo'; outline: none; box-sizing: border-box; }
+
+        .btn { width: 100%; padding: 16px; border-radius: 15px; border: none; font-family: 'Cairo'; font-weight: 900; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; }
+        .btn-primary { background: linear-gradient(135deg, #7d2ae8, #ab6ffc); color: #fff; margin-top: 10px; box-shadow: 0 4px 15px rgba(125, 42, 232, 0.4); }
+        .btn-logout { background: transparent; color: #ff4444; border: 1px solid #ff444444; margin-top: 25px; }
+
+        .tab-system { display: flex; gap: 10px; margin-bottom: 30px; background: #111; padding: 7px; border-radius: 15px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: none; color: #888; font-family: 'Cairo'; cursor: pointer; border-radius: 10px; transition: 0.3s; font-weight: bold; }
+        .tab-btn.active { background: var(--p); color: #fff; }
+
+        #profileContent, #authContent, #devDashboard { display: none; }
+        .show { display: block !important; animation: fadeIn 0.6s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .loading-overlay { position: absolute; inset: 0; background: var(--card); display: none; align-items: center; justify-content: center; z-index: 10; flex-direction: column; gap: 15px; }
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(125, 42, 232, 0.2); border-top-color: var(--p); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container" id="mainContainer">
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <p id="loadingText" style="font-size: 0.9rem; color: var(--p);">جاري فحص سجلات الظلال...</p>
+        </div>
+
+        <div id="profileContent">
+            <div class="profile-header">
+                <input type="file" id="avatarUpload" style="display:none" accept="image/*">
+                <div class="user-avatar" id="pAvatarBox" onclick="document.getElementById('avatarUpload').click()">
+                    <img src="" id="pUserImg" style="display:none;">
+                    <span id="pUserInitials">?</span>
+                </div>
+                <h2 class="p-name"><span id="devBadge" class="badge-dev" style="display:none;">MEMBER</span> <span id="pUserName">تحميل...</span></h2>
+                <p id="pUserEmail" class="p-email"></p>
+            </div>
+
+            <div id="readerDashboard" class="dashboard-section">
+                <h3 class="section-title">مركز التحكم بالقدرات</h3>
+                <div class="stat-grid">
+                    <div class="stat-card"><i class="fas fa-bookmark"></i><h3 id="statFav">0</h3><p>في المفضلة</p></div>
+                    <div class="stat-card"><i class="fas fa-history"></i><h3 id="statLast">0</h3><p>آخر فصول</p></div>
+                    <div class="stat-card"><i class="fas fa-comment"></i><h3 id="statComm">0</h3><p>تعليقات</p></div>
+                </div>
+
+                <div class="sync-section">
+                    <div id="syncStatus" class="sync-header" style="color:var(--p); margin-bottom:10px;"><i class="fas fa-sync fa-spin"></i> جاري مزامنة القدرات...</div>
+                    <div class="sync-bar-container"><div class="sync-bar" id="syncBar"></div></div>
+                </div>
+
+                <h3 class="section-title" style="margin-top:30px;">روابط سريعة</h3>
+                <ul class="p-links">
+                    <li><a href="fav.html"><span>مفاتيحي المفضلة</span> <i class="fas fa-chevron-left"></i></a></li>
+                    <li><a href="last.html"><span>آخر ما استدعيته</span> <i class="fas fa-chevron-left"></i></a></li>
+                </ul>
+            </div>
+
+            <div id="devDashboard" class="dashboard-section" style="display:none;">
+                <h3 class="section-title" style="color:var(--dev)">بوابة التحكم المركزية (المطور)</h3>
+                <div class="stat-grid">
+                    <div class="stat-card" style="border-color:var(--dev)"><i class="fas fa-users" style="color:var(--dev)"></i><h3>+99</h3><p>المستخدمين</p></div>
+                    <div class="stat-card" style="border-color:var(--dev)"><i class="fas fa-database" style="color:var(--dev)"></i><h3>Active</h3><p>القاعدة</p></div>
+                    <div class="stat-card" style="border-color:var(--dev)"><i class="fas fa-code-branch" style="color:var(--dev)"></i><h3>V3.0</h3><p>الإصدار</p></div>
+                </div>
+            </div>
+
+            <div style="height:1px; background:#1a1a1a; margin: 40px 0;"></div>
+            <div class="input-group">
+                <label>لقب الظل (اسم العرض)</label>
+                <input type="text" id="updateNameInput" placeholder="اكتب لقبك الجديد هنا...">
+            </div>
+            <button class="btn btn-primary" id="updateNameBtn">تحديث الهوية</button>
+            <button class="btn btn-logout" id="logoutBtn">خروج من بوابة الظل</button>
+        </div>
+
+        <div id="authContent">
+            <div class="profile-header">
+                <h2 style="margin:0; font-weight: 900; color: var(--p);">استدعاء الظل</h2>
+                <p style="color:#666; font-size: 0.85rem;">افتح البوابة للوصول لمكتبتك</p>
+            </div>
+            <div class="tab-system">
+                <button id="tabLogin" class="tab-btn active" onclick="switchTab('login')">دخول</button>
+                <button id="tabSignup" class="tab-btn" onclick="switchTab('signup')">إنشاء حساب</button>
+            </div>
+            <div class="input-group">
+                <label>البريد الإلكتروني</label>
+                <input type="email" id="emailInput" placeholder="example@mail.com">
+            </div>
+            <div class="input-group">
+                <label>كلمة المرور</label>
+                <input type="password" id="passInput" placeholder="••••••••">
+            </div>
+            
+            <button class="btn btn-primary" id="mainAuthBtn">فتح بوابة الدخول</button>
+            
+            <div id="googleSection">
+                <div style="text-align:center; margin: 20px 0; color:#333;">أو تابع باستخدام</div>
+                <button class="btn" style="background:#fff; color:#000;" id="googleBtn">
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" style="vertical-align: middle; margin-left: 8px;"> Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, get, update, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getStorage, ref as sRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDaosiZQoPCo4wdlSDy6UYs0b2PWbkkWXs",
+            authDomain: "igrismanga-db.firebaseapp.com",
+            databaseURL: "https://igrismanga-db-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "igrismanga-db",
+            storageBucket: "igrismanga-db.appspot.com",
+            appId: "1:40861137290:web:03cd9be7175620d4e23073"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const storage = getStorage(app);
+        const provider = new GoogleAuthProvider();
+
+        const DEVELOPERS = ["aymanmaliani22@gmail.com", "admin@igris.com"];
+        let mode = 'login';
+
+        window.switchTab = (m) => {
+            mode = m;
+            document.getElementById('tabLogin').classList.toggle('active', m === 'login');
+            document.getElementById('tabSignup').classList.toggle('active', m === 'signup');
+            document.getElementById('mainAuthBtn').innerText = m === 'login' ? 'فتح بوابة الدخول' : 'استدعاء حساب جديد';
+            document.getElementById('googleSection').style.display = m === 'login' ? 'block' : 'none';
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            const main = document.getElementById('mainContainer');
+            main.style.display = 'block';
+            toggleLoading(false);
+
+            if (user) {
+                showSection('profileContent');
+                updateUI(user);
+                loadStats(user.uid);
+            } else {
+                showSection('authContent');
+            }
+        });
+
+        async function updateUI(user) {
+            document.getElementById('pUserName').innerText = user.displayName || "مستكشف الظل";
+            document.getElementById('pUserEmail').innerText = user.email;
+            const initials = user.displayName ? user.displayName.charAt(0).toUpperCase() : "?";
+            document.getElementById('pUserInitials').innerText = initials;
+
+            // جلب الصورة من قاعدة البيانات لضمان السرعة والدقة
+            const dbRef = ref(db, `users/${user.uid}/meta/photoURL`);
+            const snapshot = await get(dbRef);
+            let photoToShow = user.photoURL;
+
+            if (snapshot.exists()) {
+                photoToShow = snapshot.val();
+            }
+
+            if (photoToShow) {
+                const img = document.getElementById('pUserImg');
+                img.src = photoToShow + (photoToShow.includes('?') ? '&' : '?') + 't=' + Date.now();
+                img.onload = () => {
+                    img.style.display = 'block';
+                    document.getElementById('pUserInitials').style.display = 'none';
+                };
+            } else {
+                document.getElementById('pUserImg').style.display = 'none';
+                document.getElementById('pUserInitials').style.display = 'flex';
+            }
+
+            if (DEVELOPERS.includes(user.email.toLowerCase())) {
+                document.getElementById('devBadge').style.display = 'inline-block';
+                document.getElementById('devBadge').innerText = 'MASTER';
+                document.getElementById('pAvatarBox').classList.add('dev-border');
+                document.getElementById('readerDashboard').style.display = 'none';
+                document.getElementById('devDashboard').style.display = 'block';
+            }
+        }
+
+        async function loadStats(uid) {
+            updateSyncBar(40);
+            try {
+                const snapshot = await get(ref(db, `users/${uid}/meta`));
+                if (!snapshot.exists()) {
+                    await set(ref(db, `users/${uid}/meta`), { joinedAt: Date.now(), role: "user" });
+                }
+                updateSyncBar(100);
+                document.getElementById('syncStatus').innerHTML = '<i class="fas fa-check-circle"></i> تم مزامنة سجلات الظل';
+            } catch (e) {
+                updateSyncBar(0);
+            }
+        }
+
+        document.getElementById('mainAuthBtn').onclick = async () => {
+            const e = document.getElementById('emailInput').value;
+            const p = document.getElementById('passInput').value;
+            if (!e || !p) return alert("يرجى ملء كافة الحقول");
+            toggleLoading(true, "جاري استدعاء البوابة...");
+
+            try {
+                if (mode === 'login') {
+                    await signInWithEmailAndPassword(auth, e, p);
+                } else {
+                    await createUserWithEmailAndPassword(auth, e, p);
+                }
+            } catch (err) {
+                alert("خطأ: " + err.message);
+            } finally {
+                toggleLoading(false);
+            }
+        };
+
+        document.getElementById('googleBtn').onclick = () => signInWithPopup(auth, provider);
+
+        document.getElementById('avatarUpload').onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file || !auth.currentUser) return;
+            toggleLoading(true, "جاري تخليد صورتك...");
+            try {
+                const sRefPath = sRef(storage, `users/${auth.currentUser.uid}/avatar`);
+                await uploadBytes(sRefPath, file);
+                const url = await getDownloadURL(sRefPath);
+                
+                // تحديث الحساب والقاعدة معاً لضمان بقائها عند تسجيل الدخول القادم
+                await Promise.all([
+                    updateProfile(auth.currentUser, { photoURL: url }),
+                    update(ref(db, `users/${auth.currentUser.uid}/meta`), { photoURL: url })
+                ]);
+
+                const img = document.getElementById('pUserImg');
+                img.src = url + "?t=" + Date.now();
+                img.style.display = 'block';
+                document.getElementById('pUserInitials').style.display = 'none';
+                
+                alert("تم تحديث صورتك بنجاح");
+            } catch (err) { 
+                console.error(err);
+                alert("فشل رفع الصورة: " + err.message); 
+            }
+            finally { toggleLoading(false); }
+        };
+
+        document.getElementById('updateNameBtn').onclick = async () => {
+            const name = document.getElementById('updateNameInput').value;
+            if (!name) return;
+            toggleLoading(true, "تغيير الهوية...");
+            try {
+                await updateProfile(auth.currentUser, { displayName: name });
+                await update(ref(db, `users/${auth.currentUser.uid}/meta`), { displayName: name });
+                document.getElementById('pUserName').innerText = name;
+                alert("تم تحديث لقبك بنجاح");
+            } catch (err) { alert(err.message); }
+            finally { toggleLoading(false); }
+        };
+
+        document.getElementById('logoutBtn').onclick = () => signOut(auth);
+
+        function showSection(id) {
+            ['profileContent', 'authContent'].forEach(s => document.getElementById(s).classList.remove('show'));
+            document.getElementById(id).classList.add('show');
+        }
+
+        function toggleLoading(show, text = "") {
+            const loader = document.getElementById('loadingOverlay');
+            document.getElementById('loadingText').innerText = text;
+            loader.style.display = show ? 'flex' : 'none';
+        }
+
+        function updateSyncBar(p) {
+            const bar = document.getElementById('syncBar');
+            if (bar) bar.style.width = p + '%';
+        }
+    </script>
+</body>
+</html>
