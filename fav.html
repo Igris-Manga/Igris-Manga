@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Igris Manga | المفضلات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            /* تم تحديث الألوان لتطابق ثيم بروفايل الظلال */
+            --p: #00ceff; 
+            --bg: #000; 
+            --card: rgba(0, 20, 30, 0.85); 
+            --text: #fff; 
+            --border: #00ceff; 
+            --sub-bg: #151515;
+            --glow: 0 0 20px rgba(0, 206, 255, 0.3);
+            --red: #ff0055;
+            --p-light: #70e4ff;
+        }
+
+        [data-theme="light"] {
+            --bg: #f5f5f5; --card: #ffffff; --text: #1a1a1a; 
+            --border: #00ceff; --sub-bg: #eeeeee;
+        }
+
+        body { 
+            background: var(--bg); color: var(--text); font-family: 'Cairo', sans-serif; 
+            margin: 0; padding: 0; transition: 0.3s; min-height: 100vh;
+            /* إضافة الخلفية المستوحاة من البروفايل */
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
+                url('https://i.pinimg.com/originals/f3/0e/4e/f30e4e60d845e0d293679809968a3c8a.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        header { 
+            background: var(--card); padding: 15px 5%; display: flex; 
+            justify-content: space-between; align-items: center; 
+            border-bottom: 2px solid var(--p); position: sticky; top: 0; z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 900; color: var(--p); text-decoration: none; letter-spacing: 2px; }
+        .logo span { color: #fff; text-shadow: 0 0 10px var(--p); }
+
+        .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+
+        .back-btn { 
+            display: inline-flex; align-items: center; gap: 8px; 
+            color: var(--p); text-decoration: none; margin-bottom: 20px; 
+            font-size: 0.9rem; font-weight: bold; transition: 0.3s;
+            border: 1px solid var(--p); padding: 5px 15px;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+        .back-btn:hover { background: var(--p); color: #000; transform: translateX(-5px); }
+
+        .page-title {
+            display: flex; align-items: center; gap: 15px; margin-bottom: 30px;
+            border-right: 4px solid var(--p); padding-right: 15px;
+        }
+        .page-title i { color: var(--p); font-size: 1.8rem; text-shadow: 0 0 15px var(--p); }
+        .page-title h2 { font-weight: 900; letter-spacing: 1px; text-transform: uppercase; }
+
+        /* شبكة المفضلات بتصميم النظام */
+        .fav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+        }
+
+        .fav-item {
+            background: var(--card); border-radius: 0; overflow: hidden;
+            border: 1px solid var(--border); transition: 0.4s; position: relative;
+            text-decoration: none; color: inherit;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 90% 100%, 0 100%);
+            backdrop-filter: blur(5px);
+        }
+
+        .fav-item:hover {
+            transform: translateY(-10px); border-color: #fff;
+            box-shadow: var(--glow);
+        }
+
+        .fav-poster { width: 100%; height: 230px; position: relative; border-bottom: 1px solid var(--p); }
+        .fav-poster img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.8) contrast(1.1); }
+        
+        /* زر الحذف بستايل العقوبة */
+        .remove-btn {
+            position: absolute; top: 10px; left: 10px; width: 32px; height: 32px;
+            background: rgba(255, 0, 85, 0.8); border: 1px solid #fff; border-radius: 0;
+            color: white; cursor: pointer; z-index: 10; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
+            clip-path: polygon(20% 0, 100% 0, 80% 100%, 0 100%);
+        }
+        .remove-btn:hover { background: #ff0055; transform: scale(1.1) rotate(5deg); box-shadow: 0 0 10px #ff0055; }
+
+        .fav-info { padding: 12px; text-align: center; background: rgba(0, 206, 255, 0.05); }
+        .fav-name { 
+            font-weight: 900; font-size: 0.9rem; margin-bottom: 8px; color: #fff;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
+        }
+        .fav-status { 
+            font-size: 0.7rem; color: #000; background: var(--p); 
+            padding: 2px 10px; font-weight: 900;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        #emptyState { 
+            text-align: center; padding: 80px 20px; display: none; 
+            border: 1px dashed var(--p); background: rgba(0, 206, 255, 0.02);
+        }
+        #loading { text-align: center; padding: 50px; color: var(--p); }
+
+        /* شاشة الجوال */
+        @media (max-width: 480px) {
+            .fav-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .fav-poster { height: 190px; }
+            .container { padding: 0 15px; }
+        }
+
+        /* تحريك النظام */
+        @keyframes pulseGlow {
+            0% { text-shadow: 0 0 5px var(--p); }
+            100% { text-shadow: 0 0 15px var(--p), 0 0 20px var(--p); }
+        }
+        .logo { animation: pulseGlow 2s infinite alternate; }
+
+        /* --- تصميم نوافذ النظام المخصصة (System Alerts) --- */
+        .system-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10000; visibility: hidden; opacity: 0;
+            transition: 0.3s;
+        }
+
+        .system-overlay.active { visibility: visible; opacity: 1; }
+
+        .system-modal {
+            width: 90%; max-width: 400px;
+            background: rgba(0, 20, 30, 0.95);
+            border: 2px solid var(--p);
+            box-shadow: 0 0 30px rgba(0, 206, 255, 0.4);
+            padding: 25px;
+            clip-path: polygon(0 10%, 10% 0, 90% 0, 100% 10%, 100% 90%, 90% 100%, 10% 100%, 0 90%);
+            text-align: center;
+            transform: scale(0.8); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .system-overlay.active .system-modal { transform: scale(1); }
+
+        .system-modal h4 {
+            color: var(--p); margin: 0 0 15px; font-weight: 900;
+            text-shadow: 0 0 10px var(--p); letter-spacing: 2px; font-size: 1.2rem;
+        }
+
+        .system-modal p { color: #fff; font-size: 0.95rem; margin-bottom: 25px; line-height: 1.6; }
+
+        .modal-btns { display: flex; gap: 15px; justify-content: center; }
+
+        .modal-btn {
+            padding: 10px 25px; border: 1px solid var(--p);
+            background: rgba(0, 206, 255, 0.1); color: var(--p);
+            font-family: 'Cairo'; font-weight: bold; cursor: pointer;
+            transition: 0.3s; min-width: 100px;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+
+        .modal-btn:hover { background: var(--p); color: #000; box-shadow: 0 0 15px var(--p); }
+        .modal-btn.confirm-yes { border-color: var(--red); color: var(--red); }
+        .modal-btn.confirm-yes:hover { background: var(--red); color: #fff; box-shadow: 0 0 15px var(--red); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">IGRIS <span>MANGA</span></a>
+        <a href="profile.html" style="color: var(--p); font-size: 1.2rem; text-decoration: none;"><i class="fas fa-user-circle"></i></a>
+    </header>
+
+    <div class="container">
+        <a href="index.html" class="back-btn"><i class="fas fa-chevron-right"></i> الصفحة الرئيسية</a>
+
+        <div class="page-title">
+            <i class="fas fa-skull"></i>
+            <h2 style="margin: 0;">سجلات المفضلات المستدعاة</h2>
+        </div>
+
+        <div id="loading"><i class="fas fa-sync fa-spin" style="font-size: 2.5rem;"></i><p>جاري فحص سجلات النظام...</p></div>
+
+        <div id="emptyState">
+            <i class="fas fa-ghost" style="font-size: 4rem; color: var(--p); margin-bottom: 20px; opacity: 0.3;"></i>
+            <h3 style="color: var(--p);">قائمتك فارغة أيها الصياد</h3>
+            <p style="opacity: 0.6; font-size: 0.9rem;">لم تقم باستدعاء أي مانهوا إلى مكتبتك الخاصة بعد.</p>
+            <a href="index.html" style="display: inline-block; margin-top: 15px; color: #000; background: var(--p); padding: 8px 20px; text-decoration: none; font-weight: 900; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);">ابدأ الغارة الآن</a>
+        </div>
+
+        <div class="fav-grid" id="favGrid"></div>
+    </div>
+
+    <div id="systemAlert" class="system-overlay">
+        <div class="system-modal">
+            <h4 id="alertTitle">إشعار النظام</h4>
+            <p id="alertMsg">جاري معالجة البيانات...</p>
+            <div class="modal-btns" id="modalBtns"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDaosiZQoPCo4wdlSDy6UYs0b2PWbkkWXs",
+            authDomain: "igrismanga-db.firebaseapp.com",
+            databaseURL: "https://igrismanga-db-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "igrismanga-db",
+            storageBucket: "igrismanga-db.appspot.com",
+            appId: "1:40861137290:web:03cd9be7175620d4e23073"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // ضبط الثيم
+        if (localStorage.getItem('theme') === 'light') document.documentElement.setAttribute('data-theme', 'light');
+
+        /* --- محرك تنبيهات النظام --- */
+        window.showSystemAlert = (msg, title = "إشعار النظام") => {
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMsg').innerText = msg;
+            document.getElementById('modalBtns').innerHTML = `<button class="modal-btn" onclick="window.closeSystemAlert()">إغلاق</button>`;
+            document.getElementById('systemAlert').classList.add('active');
+        };
+
+        window.showSystemConfirm = (msg, onConfirm) => {
+            document.getElementById('alertTitle').innerText = "تأكيد المهمة";
+            document.getElementById('alertMsg').innerText = msg;
+            document.getElementById('modalBtns').innerHTML = `
+                <button class="modal-btn confirm-yes" id="confirmOk">تأكيد</button>
+                <button class="modal-btn" onclick="window.closeSystemAlert()">تراجع</button>
+            `;
+            document.getElementById('systemAlert').classList.add('active');
+            document.getElementById('confirmOk').onclick = () => { 
+                onConfirm(); 
+                window.closeSystemAlert(); 
+            };
+        };
+
+        window.closeSystemAlert = () => { document.getElementById('systemAlert').classList.remove('active'); };
+
+        onAuthStateChanged(auth, (user) => {
+            const grid = document.getElementById('favGrid');
+            const loading = document.getElementById('loading');
+            const empty = document.getElementById('emptyState');
+
+            if (user) {
+                const favRef = ref(db, `users/${user.uid}/favorites`);
+                
+                onValue(favRef, async (snapshot) => {
+                    grid.innerHTML = '';
+                    loading.style.display = 'none';
+
+                    if (snapshot.exists()) {
+                        const favIds = snapshot.val();
+                        const ids = Object.keys(favIds);
+                        
+                        for (const id of ids) {
+                            const mangaSnap = await get(ref(db, `manga/${id}`));
+                            if (mangaSnap.exists()) {
+                                const m = mangaSnap.val();
+                                grid.appendChild(createFavCard(id, m, user.uid));
+                            }
+                        }
+                        empty.style.display = grid.children.length > 0 ? 'none' : 'block';
+                    } else {
+                        empty.style.display = 'block';
+                    }
+                });
+            } else {
+                loading.innerHTML = '<p style="color:var(--red)">[ تنبيه ] يرجى تسجيل الدخول للوصول إلى نظام المفضلات</p><a href="profile.html" style="color:var(--p); text-decoration:none; font-weight:bold;">ذهاب لصفحة الاستدعاء</a>';
+            }
+        });
+
+        function createFavCard(id, m, uid) {
+            const card = document.createElement('div');
+            card.className = 'fav-item';
+            card.innerHTML = `
+                <button class="remove-btn" onclick="removeFromFav('${id}', '${uid}')">
+                    <i class="fas fa-times"></i>
+                </button>
+                <a href="reader.html?id=${id}" style="text-decoration:none; color:inherit;">
+                    <div class="fav-poster">
+                        <img src="${m.cover}" alt="${m.title}">
+                    </div>
+                    <div class="fav-info">
+                        <div class="fav-name">${m.title}</div>
+                        <span class="fav-status">${m.type || 'مانهوا'}</span>
+                    </div>
+                </a>
+            `;
+            return card;
+        }
+
+        // تحديث دالة الحذف لتعمل بنظام سولو ليفلينج الجديد
+        window.removeFromFav = (mangaId, uid) => {
+            window.showSystemConfirm("هل تريد إبطال استدعاء هذه المانجا من مكتبتك؟", () => {
+                remove(ref(db, `users/${uid}/favorites/${mangaId}`));
+            });
+        };
+    </script>
+</body>
+</html>
