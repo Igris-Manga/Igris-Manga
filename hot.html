@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أعمال شائعة | Igris Manga</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            /* التعديل ليتطابق مع ثيم ملف profile.html */
+            --p: #00ceff; /* اللون الأزرق النيوني لنظام سولو ليفلينج */
+            --bg: #000000; 
+            --card: rgba(0, 20, 30, 0.85); /* شفافية نوافذ النظام */
+            --side: #050505;       
+            --text: #ffffff; 
+            --text-muted: #888888; 
+            --border: #00ceff; /* حدود نيوني */
+            --sub-bg: #111111; 
+            --glow: 0 0 20px rgba(0, 206, 255, 0.4); 
+            --gold: #f1c40f; 
+            --heart: #ff4757;
+            --gradient: linear-gradient(135deg, #00ceff, #005f7a);
+        }
+
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: 'Cairo', sans-serif; 
+            margin: 0; padding: 0; 
+            min-height: 100vh;
+            /* إضافة الخلفية من ملف profile */
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
+                url('https://i.pinimg.com/originals/f3/0e/4e/f30e4e60d845e0d293679809968a3c8a.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        header { 
+            background: rgba(0, 15, 25, 0.95); 
+            padding: 15px 5%; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 2px solid var(--p); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            backdrop-filter: blur(15px);
+            box-shadow: var(--glow);
+        }
+
+        /* [تعديل اللوجو بناءً على المواصفات الجديدة] */
+        .logo { 
+            font-size: 1.5rem; 
+            font-weight: 900; 
+            color: var(--p); 
+            text-decoration: none; 
+            letter-spacing: 2px; 
+            font-family: 'Cairo', sans-serif;
+            animation: pulseGlow 2s infinite alternate; 
+        }
+
+        .logo span { 
+            color: #fff; 
+            text-shadow: 0 0 10px var(--p); 
+        }
+
+        /* تحريك نظام التوهج الخاص باللوجو */
+        @keyframes pulseGlow {
+            0% { text-shadow: 0 0 5px var(--p); }
+            100% { text-shadow: 0 0 15px var(--p), 0 0 20px var(--p); }
+        }
+
+        .home-link {
+            text-decoration: none; 
+            color: #000; 
+            background: var(--p); /* جعل الزر بلون النظام */
+            padding: 8px 20px; 
+            border-radius: 0px; /* شكل هندسي حاد */
+            font-weight: 900; 
+            transition: 0.3s;
+            display: flex; 
+            align-items: center; 
+            gap: 8px;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+        }
+        .home-link:hover { transform: scale(1.05); box-shadow: var(--glow); background: #fff; }
+
+        .hot-banner {
+            padding: 60px 5%; 
+            background: linear-gradient(to bottom, rgba(0, 20, 255, 0.1), transparent);
+            text-align: center; 
+            border-bottom: 1px solid rgba(0, 206, 255, 0.2);
+        }
+        .hot-banner h1 { 
+            font-size: 2.8rem; 
+            margin: 0; 
+            color: #fff; 
+            text-shadow: 0 0 15px var(--p); 
+            letter-spacing: 2px;
+        }
+        .hot-banner p { color: var(--p); opacity: 0.8; margin-top: 10px; font-weight: bold; }
+
+        .manga-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); 
+            gap: 25px; 
+            padding: 40px 5%; 
+        }
+
+        /* تصميم بطاقة الأعمال الشائعة بنمط نافذة النظام */
+        .hot-card {
+            background: var(--card); 
+            border-radius: 0; /* شكل حاد */
+            overflow: hidden;
+            border: 1px solid rgba(0, 206, 255, 0.3); 
+            transition: 0.4s ease; 
+            text-decoration: none; 
+            color: inherit; 
+            display: block;
+            position: relative;
+            backdrop-filter: blur(10px);
+            /* [تمت الإضافة] إضافة قص للزاوية العلوية اليسرى لتتناسب مع الزاوية السفلية */
+            clip-path: polygon(20px 0, 100% 0, 100% 100%, 20px 100%, 0 calc(100% - 20px), 0 20px);
+        }
+        .hot-card:hover { 
+            transform: translateY(-10px) scale(1.02); 
+            border-color: var(--p); 
+            box-shadow: var(--glow); 
+            background: rgba(0, 40, 60, 0.9);
+        }
+
+        .poster-box { 
+            position: relative; 
+            aspect-ratio: 2/3; 
+            overflow: hidden; 
+            border-bottom: 1px solid var(--p);
+        }
+        .poster-box img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: 0.5s; 
+            filter: brightness(0.8);
+        }
+        .hot-card:hover .poster-box img { transform: scale(1.1); filter: brightness(1); }
+
+        /* رتبة المانجا بتصميم يشبه Level Badge */
+        .rank-badge {
+            position: absolute; 
+            top: 0; 
+            right: 0; /* تم نقلها لليمين لتجنب منطقة القص الحاد في التصاميم المستقبلية */
+            background: var(--p);
+            color: #000; 
+            width: 35px; 
+            height: 35px; 
+            display: flex; 
+            align-items: center;
+            justify-content: center; 
+            font-weight: 900; 
+            z-index: 5;
+            /* شكل شارة النظام */
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 70%);
+            font-size: 1.1rem;
+            box-shadow: 0 0 10px var(--p);
+        }
+
+        .stats-overlay {
+            position: absolute; 
+            bottom: 10px; 
+            right: 10px; 
+            left: 10px;
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            z-index: 2;
+        }
+        .hearts-tag {
+            background: rgba(0, 0, 0, 0.85); 
+            color: var(--p); /* تغيير للون النيوني */
+            padding: 4px 10px;
+            border-radius: 0; 
+            font-size: 0.8rem; 
+            font-weight: bold; 
+            backdrop-filter: blur(5px);
+            border: 1px solid var(--p);
+        }
+
+        .info-box { 
+            padding: 15px; 
+            text-align: center; 
+            background: linear-gradient(to top, rgba(0,206,255,0.1), transparent);
+        }
+        .info-box h3 { 
+            font-size: 1rem; 
+            margin: 0 0 8px 0; 
+            color: #fff; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis;
+            letter-spacing: 1px;
+        }
+
+        .rating { color: var(--p); font-size: 0.85rem; display: flex; justify-content: center; gap: 4px; }
+
+        #loading { 
+            text-align: center; 
+            padding: 100px; 
+            color: var(--p); 
+            font-size: 1.5rem; 
+            text-shadow: var(--glow);
+        }
+
+        @media (max-width: 600px) {
+            .manga-grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 15px; }
+            .hot-banner h1 { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="index.html" class="logo">IGRIS <span>MANGA</span></a>
+        <a href="index.html" class="home-link"><i class="fas fa-bolt"></i> العودة للمقر</a>
+    </header>
+
+    <div class="hot-banner">
+        <h1>🔥 الأهداف الشائعة</h1>
+        <p>[ يتم تحديث سجلات التفاعل حالياً من قبل النظام ]</p>
+    </div>
+
+    <div id="loading">
+        <i class="fas fa-sync fa-spin"></i> جاري استدعاء البيانات من السراديب...
+    </div>
+
+    <div class="manga-grid" id="hotGrid"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue, query, orderByChild, set, serverTimestamp, update, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDaosiZQoPCo4wdlSDy6UYs0b2PWbkkWXs",
+            authDomain: "igrismanga-db.firebaseapp.com",
+            databaseURL: "https://igrismanga-db-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "igrismanga-db",
+            storageBucket: "igrismanga-db.appspot.com",
+            appId: "1:40861137290:web:03cd9be7175620d4e23073"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        window.submitRating = async (mangaId, value) => {
+            const user = auth.currentUser;
+            if (!user) return;
+            try {
+                const updates = {};
+                updates[`manga_ratings/${mangaId}/${user.uid}/rating`] = value;
+                updates[`manga/${mangaId}/rating`] = value;
+                await update(ref(db), updates);
+            } catch (error) { console.error("Rating Error:", error); }
+        };
+
+        window.logView = async (mangaId) => {
+            try {
+                if(auth.currentUser) {
+                    const viewRef = ref(db, `manga/${mangaId}/views`);
+                    await set(viewRef, serverTimestamp()); 
+                }
+            } catch (e) { }
+        };
+
+        const mangaRef = query(ref(db, 'manga'), orderByChild('hearts'));
+
+        onValue(mangaRef, async (snapshot) => {
+            const grid = document.getElementById('hotGrid');
+            grid.innerHTML = '';
+            document.getElementById('loading').style.display = 'none';
+
+            if (snapshot.exists()) {
+                let mangas = [];
+                snapshot.forEach(child => {
+                    mangas.push({ id: child.key, ...child.val() });
+                });
+
+                mangas.reverse().forEach((m, index) => {
+                    // ميزة إضافية: جلب فوري ومباشر للتقييم والقلوب لضمان المطابقة مع الصورة
+                    const currentHearts = m.hearts || 0;
+                    const currentRating = m.rating || 0;
+                    
+                    const heartsCount = currentHearts >= 1000 ? (currentHearts/1000).toFixed(1) + 'k' : currentHearts;
+                    const ratingValue = parseFloat(currentRating).toFixed(1);
+                    
+                    const mangaCard = document.createElement('div');
+                    mangaCard.className = 'hot-card';
+                    mangaCard.innerHTML = `
+                        <a href="reader.html?id=${m.id}" onclick="logView('${m.id}')" style="text-decoration:none; color:inherit;">
+                            <div class="rank-badge">${index + 1}</div>
+                            <div class="poster-box">
+                                <img src="${m.cover}" alt="${m.title}" loading="lazy">
+                                <div class="stats-overlay">
+                                    <span class="hearts-tag"><i class="fas fa-heart"></i> <span id="hearts-${m.id}">${heartsCount}</span></span>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="info-box">
+                            <h3>${m.title}</h3>
+                            <div class="rating">
+                                <span id="stars-${m.id}">${renderStars(currentRating)}</span>
+                                <span style="color:var(--text-muted)">(${ratingValue})</span>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(mangaCard);
+                });
+            }
+        });
+
+        function renderStars(rating) {
+            let stars = "";
+            let r = Math.round(parseFloat(rating || 0));
+            for(let i=1; i<=5; i++) {
+                const starClass = i <= r ? 'fas fa-star' : 'far fa-star';
+                stars += `<i class="${starClass}"></i>`;
+            }
+            return stars;
+        }
+    </script>
+</body>
+</html>
